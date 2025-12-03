@@ -3,38 +3,46 @@ import type { Position } from "../model/game"
 
 interface WallSlotProps {
     position: Position
+    onWallClick: (position: Position, orientation: "horizontal" | "vertical") => void
 }
 
-export function WallSlot({ position }: WallSlotProps) {
+export function WallSlot({ position, onWallClick }: WallSlotProps) {
     const CELL_SIZE = 50
     const GAP = 8
+
+    const hitBoxStyle = {
+        position: "absolute",
+        bgcolor: "transparent",
+        cursor: "pointer",
+        transition: "background-color 0.2s",
+        "&:hover": {
+            bgcolor: "rgba(0,0,0,0.2)",
+        }
+    } as const
 
     return (
         <>
             <Box
+                onClick={() => onWallClick(position, "horizontal")}
                 sx={{
-                    position: "absolute",
+                    ...hitBoxStyle,
                     left: position.col * (CELL_SIZE + GAP),
                     top: position.row * (CELL_SIZE + GAP) + CELL_SIZE,
                     width: CELL_SIZE * 2 + GAP,
                     height: GAP,
-                    bgcolor: "transparent",
-                    pointerEvents: "none",
                 }}
             />
 
             <Box
+                onClick={() => onWallClick(position, "vertical")}
                 sx={{
-                    position: "absolute",
+                    ...hitBoxStyle,
                     left: position.col * (CELL_SIZE + GAP) + CELL_SIZE,
                     top: position.row * (CELL_SIZE + GAP),
                     width: GAP,
                     height: CELL_SIZE * 2 + GAP,
-                    bgcolor: "transparent",
-                    pointerEvents: "none",
                 }}
             />
         </>
     )
 }
-

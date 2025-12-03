@@ -10,7 +10,7 @@ interface GameBoardProps {
     currentPlayerId: number
 }
 
-export function GameBoard({ gameState, onCellClick }: GameBoardProps) {
+export function GameBoard({ gameState, onCellClick, onWallClick }: GameBoardProps) {
     const BOARD_SIZE = 9
 
     const getPlayerAtPosition = (row: number, col: number) => {
@@ -24,6 +24,7 @@ export function GameBoard({ gameState, onCellClick }: GameBoardProps) {
                 p: 3,
                 display: "inline-block",
                 bgcolor: "background.paper",
+                position: "relative"
             }}
         >
             <Box
@@ -32,41 +33,42 @@ export function GameBoard({ gameState, onCellClick }: GameBoardProps) {
                     gridTemplateColumns: `repeat(${BOARD_SIZE}, 50px)`,
                     gridTemplateRows: `repeat(${BOARD_SIZE}, 50px)`,
                     gap: "8px",
-                    position: "relative",
                 }}
             >
                 {Array.from({ length: BOARD_SIZE }).map((_, row) =>
                     Array.from({ length: BOARD_SIZE }).map((_, col) => {
                         const player = getPlayerAtPosition(row, col)
-
                         return (
                             <GameCell
                                 key={`${row}-${col}`}
                                 position={{ row, col }}
                                 player={player}
                                 isValid={false}
-                                onClick={() => onCellClick({ row, col })}
+                                onClick={onCellClick}
                             />
                         )
                     }),
                 )}
             </Box>
 
-            {/* Wall placement slots */}
             <Box
                 sx={{
                     position: "absolute",
-                    top: 0,
-                    left: 0,
+                    top: 24,
+                    left: 24,
+                    width: "100%",
+                    height: "100%",
                     pointerEvents: "none",
                 }}
             >
                 {Array.from({ length: BOARD_SIZE - 1 }).map((_, row) =>
                     Array.from({ length: BOARD_SIZE - 1 }).map((_, col) => (
-                        <WallSlot
-                            key={`wall-${row}-${col}`}
-                            position={{ row, col }}
-                        />
+                        <Box key={`wall-container-${row}-${col}`} sx={{ pointerEvents: "auto" }}>
+                            <WallSlot
+                                position={{ row, col }}
+                                onWallClick={onWallClick}
+                            />
+                        </Box>
                     )),
                 )}
             </Box>

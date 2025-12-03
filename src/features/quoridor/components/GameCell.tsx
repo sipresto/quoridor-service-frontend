@@ -5,13 +5,13 @@ interface GameCellProps {
     position: Position
     player: Player | undefined
     isValid: boolean
-    onClick: () => void
+    onClick: (pos: Position) => void
 }
 
-export function GameCell({ player, isValid, onClick }: GameCellProps) {
+export function GameCell({ position, player, isValid, onClick }: GameCellProps) {
     return (
         <Box
-            onClick={onClick}
+            onClick={() => onClick(position)}
             sx={{
                 width: 50,
                 height: 50,
