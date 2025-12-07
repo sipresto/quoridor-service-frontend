@@ -1,12 +1,12 @@
 {
-  "name": "connect-4-service-frontend",
+  "name": "quoridor-service-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint connect-4-service-frontend",
+    "lint": "eslint quoridor-service-frontend",
     "preview": "vite preview"
   },
   "dependencies": {
