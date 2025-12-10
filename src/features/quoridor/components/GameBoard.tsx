@@ -1,4 +1,5 @@
 import { Box, Paper } from "@mui/material"
+import { useState, useEffect } from "react"
 import type { GameState, Position } from "../model/game"
 import { GameCell } from "./GameCell"
 import { WallSlot } from "./WallSlot"
@@ -11,7 +12,45 @@ interface GameBoardProps {
 }
 
 export function GameBoard({ gameState, onCellClick, onWallClick }: GameBoardProps) {
-    const { cells, wallSlots } = useBoardLayout(gameState)
+    const [showMoves, setShowMoves] = useState(false)
+
+    // Reset move visibility when turn changes
+    useEffect(() => {
+        setShowMoves(false)
+    }, [gameState.currentPlayer, gameState.status])
+
+    const validMovesToDisplay = showMoves ? gameState.validMoves.validMoves : []
+
+    const { cells, wallSlots } = useBoardLayout(gameState, validMovesToDisplay)
+
+    const handleInternalCellClick = (position: Position) => {
+        if (gameState.status !== "IN_PROGRESS") return
+
+        const currentPlayer = gameState.currentPlayer
+        const playerPos = currentPlayer === 1 ? gameState.board.player1Position : gameState.board.player2Position
+
+        // Check if the clicked cell is the current player's pawn
+        const isCurrentPlayer = position.x === playerPos.x && position.y === playerPos.y
+
+        if (isCurrentPlayer) {
+            // Toggle visibility of moves
+            setShowMoves(!showMoves)
+            return
+        }
+
+        // Check if the clicked cell is a valid move
+        const isValidMove = gameState.validMoves.validMoves.some(
+            (move) => move.x === position.x && move.y === position.y
+        )
+
+        if (showMoves && isValidMove) {
+            onCellClick(position)
+            setShowMoves(false)
+        } else {
+            // If clicking elsewhere (invalid move or empty space), just hide highlights
+            setShowMoves(false)
+        }
+    }
 
     return (
         <Paper
@@ -23,7 +62,7 @@ export function GameBoard({ gameState, onCellClick, onWallClick }: GameBoardProp
                 position: "relative"
             }}
         >
-            <BoardGrid cells={cells} onCellClick={onCellClick} />
+            <BoardGrid cells={cells} onCellClick={handleInternalCellClick} />
             <WallOverlay wallSlots={wallSlots} onWallClick={onWallClick} />
         </Paper>
     )
@@ -44,6 +83,7 @@ function BoardGrid({ cells, onCellClick }: { cells: ReturnType<typeof useBoardLa
                     key={cell.key}
                     position={cell.position}
                     playerNumber={cell.playerNumber}
+                    isValidMove={cell.isValidMove}
                     onClick={onCellClick}
                 />
             ))}
@@ -71,7 +111,11 @@ function WallOverlay({
         >
             {wallSlots.map((slot) => (
                 <Box key={slot.key} sx={{ pointerEvents: "auto" }}>
-                    <WallSlot position={slot.position} onWallClick={onWallClick} />
+                    <WallSlot
+                        position={slot.position}
+                        occupiedOrientation={slot.occupiedOrientation}
+                        onWallClick={onWallClick}
+                    />
                 </Box>
             ))}
         </Box>

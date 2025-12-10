@@ -38,8 +38,15 @@ export function QuoridorPage() {
 
     const handleWallClick = (position: Position, orientation: "HORIZONTAL" | "VERTICAL") => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-            // Allow manual control of whichever player's turn it is
-            void placeWall(gameState.currentPlayer, position, orientation)
+            const backendPosition = { ...position }
+
+            if (orientation === "VERTICAL") {
+                backendPosition.x += 1
+            } else if (orientation === "HORIZONTAL") {
+                backendPosition.y += 1
+            }
+
+            void placeWall(gameState.currentPlayer, backendPosition, orientation)
         }
     }
 
