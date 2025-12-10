@@ -1,37 +1,29 @@
-import axios from "axios"
-import type { GameState, Position } from "../model/game"
-import { getAuthHeaders } from "./authToken"
+import apiClient from './axiosInstance';
+import type { GameState, Position } from "../model/game";
 
-const API_BASE_PATH = "/api/games/quoridor"
+const API_BASE_PATH = import.meta.env.VITE_BACKEND_URL;
 
 export async function getGameState(gameId: string): Promise<GameState> {
-    const { data } = await axios.get<GameState>(
-        `${API_BASE_PATH}/${gameId}`,
-        { 
-            headers: {
-                ...getAuthHeaders(),
-                'Accept': 'application/json'
-            }
-        }
-    )
-    
+    const { data } = await apiClient.get<GameState>(
+        `${API_BASE_PATH}/${gameId}`
+    );
+
     if (!data || typeof data !== 'object' || !data.board) {
-        throw new Error('Invalid game state structure received from server')
+        throw new Error('Invalid game state structure received from server');
     }
-    
-    return data
+
+    return data;
 }
 
 export async function movePlayer(gameId: string, playerId: number, position: Position): Promise<GameState> {
-    const { data } = await axios.post<GameState>(
+    const { data } = await apiClient.post<GameState>(
         `${API_BASE_PATH}/${gameId}/move`,
         {
             player: playerId,
             to: { x: position.x, y: position.y }
-        },
-        { headers: getAuthHeaders() }
-    )
-    return data
+        }
+    );
+    return data;
 }
 
 export async function placeWall(
@@ -40,7 +32,7 @@ export async function placeWall(
     position: Position,
     orientation: "HORIZONTAL" | "VERTICAL"
 ): Promise<GameState> {
-    const { data } = await axios.post<GameState>(
+    const { data } = await apiClient.post<GameState>(
         `${API_BASE_PATH}/${gameId}/wall`,
         {
             player: playerId,
@@ -48,10 +40,9 @@ export async function placeWall(
                 position: { x: position.x, y: position.y },
                 orientation
             }
-        },
-        { headers: getAuthHeaders() }
-    )
-    return data
+        }
+    );
+    return data;
 }
 
 export function pollGameState(
@@ -60,28 +51,27 @@ export function pollGameState(
     onError: (error: unknown) => void,
     intervalMs: number = 1000
 ) {
-    let consecutiveErrors = 0
-    const MAX_CONSECUTIVE_ERRORS = 5
+    let consecutiveErrors = 0;
+    const MAX_CONSECUTIVE_ERRORS = 5;
 
     const fetchData = async () => {
         try {
-            const data = await getGameState(gameId)
-            consecutiveErrors = 0
-            onUpdate(data)
+            const data = await getGameState(gameId);
+            consecutiveErrors = 0;
+            onUpdate(data);
         } catch (error: unknown) {
-            consecutiveErrors++
-            onError(error)
+            consecutiveErrors++;
+            onError(error);
 
             if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-                console.error(`Stopping poll after ${MAX_CONSECUTIVE_ERRORS} consecutive errors`)
-                clearInterval(intervalId)
+                console.error(`Stopping poll after ${MAX_CONSECUTIVE_ERRORS} consecutive errors`);
+                clearInterval(intervalId);
             }
         }
-    }
+    };
 
-    void fetchData()
+    void fetchData();
+    const intervalId = setInterval(fetchData, intervalMs);
 
-    const intervalId = setInterval(fetchData, intervalMs)
-
-    return () => clearInterval(intervalId)
+    return () => clearInterval(intervalId);
 }
