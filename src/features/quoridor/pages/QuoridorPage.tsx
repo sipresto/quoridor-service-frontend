@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, CssBaseline, ThemeProvider, Typography, Alert, Snackbar } from "@mui/material"
+import { Box, CircularProgress, Container, CssBaseline, ThemeProvider, Alert, Snackbar } from "@mui/material"
 import { useMemo } from "react"
 import { useParams } from "react-router-dom"
 import { GameBoard } from "../components/GameBoard"
@@ -26,8 +26,8 @@ export function QuoridorPage() {
     }, [id])
 
     const { gameState, isLoading, error } = useGameState(gameId)
-    const { move, isPending: isMoving, error: moveError } = useMovePlayer(gameId)
-    const { placeWall, isPending: isPlacingWall, error: wallError } = usePlaceWall(gameId)
+    const { move, error: moveError } = useMovePlayer(gameId)
+    const { placeWall, error: wallError } = usePlaceWall(gameId)
 
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
@@ -37,16 +37,12 @@ export function QuoridorPage() {
 
     const handleWallClick = (position: Position, orientation: "HORIZONTAL" | "VERTICAL") => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-            // COORDINATE FIX FOR PLACEMENT:
-            // Frontend is 0-based. Backend needs 1-based for the "Gap" axis only.
 
             const backendPosition = { ...position }
 
             if (orientation === "HORIZONTAL") {
-                // Shift Y (gap row) by +1. Keep X (column span) as is.
                 backendPosition.y += 1
             } else {
-                // Shift X (gap col) by +1. Keep Y (row span) as is.
                 backendPosition.x += 1
             }
 
@@ -110,7 +106,6 @@ export function QuoridorPage() {
                             onCellClick={handleCellClick}
                             onWallClick={handleWallClick}
                         />
-                        {(isMoving || isPlacingWall) && <Typography variant="caption" sx={{ mt: 1 }}>Sending move...</Typography>}
                     </Box>
                 </Box>
             </Container>

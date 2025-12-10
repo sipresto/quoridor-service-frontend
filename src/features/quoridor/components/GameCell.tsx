@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material"
+import { Box } from "@mui/material"
 import type { Position } from "../model/game"
 
 interface GameCellProps {
@@ -38,7 +38,6 @@ export function GameCell({ position, playerNumber, isValidMove, onClick }: GameC
                 },
             }}
         >
-            {/* Render Player Pawn */}
             {playerNumber && (
                 <Box
                     sx={{
@@ -53,7 +52,6 @@ export function GameCell({ position, playerNumber, isValidMove, onClick }: GameC
                 />
             )}
 
-            {/* Render Valid Move Indicator (Dot) */}
             {isValidMove && !playerNumber && (
                 <Box
                     sx={{
@@ -65,22 +63,6 @@ export function GameCell({ position, playerNumber, isValidMove, onClick }: GameC
                     }}
                 />
             )}
-
-            {/* Debug Coordinate Label */}
-            <Typography
-                variant="caption"
-                sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 2,
-                    fontSize: "0.6rem",
-                    color: "text.disabled",
-                    pointerEvents: "none",
-                    userSelect: "none"
-                }}
-            >
-                {position.x},{position.y}
-            </Typography>
         </Box>
     )
 }

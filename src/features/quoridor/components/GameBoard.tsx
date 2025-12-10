@@ -14,7 +14,6 @@ interface GameBoardProps {
 export function GameBoard({ gameState, onCellClick, onWallClick }: GameBoardProps) {
     const [showMoves, setShowMoves] = useState(false)
 
-    // Reset move visibility when turn changes
     useEffect(() => {
         setShowMoves(false)
     }, [gameState.currentPlayer, gameState.status])
@@ -29,16 +28,13 @@ export function GameBoard({ gameState, onCellClick, onWallClick }: GameBoardProp
         const currentPlayer = gameState.currentPlayer
         const playerPos = currentPlayer === 1 ? gameState.board.player1Position : gameState.board.player2Position
 
-        // Check if the clicked cell is the current player's pawn
         const isCurrentPlayer = position.x === playerPos.x && position.y === playerPos.y
 
         if (isCurrentPlayer) {
-            // Toggle visibility of moves
             setShowMoves(!showMoves)
             return
         }
 
-        // Check if the clicked cell is a valid move
         const isValidMove = gameState.validMoves.validMoves.some(
             (move) => move.x === position.x && move.y === position.y
         )
@@ -47,7 +43,6 @@ export function GameBoard({ gameState, onCellClick, onWallClick }: GameBoardProp
             onCellClick(position)
             setShowMoves(false)
         } else {
-            // If clicking elsewhere (invalid move or empty space), just hide highlights
             setShowMoves(false)
         }
     }

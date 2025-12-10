@@ -13,7 +13,7 @@ const playerColors: Record<number, string> = {
     2: "#ef4444"
 }
 
-export function PlayerInfo({ player, position, wallsRemaining, isActive }: PlayerInfoProps) {
+export function PlayerInfo({ player, wallsRemaining, isActive }: PlayerInfoProps) {
     const playerNumber = player.isHuman ? 1 : 2
     const color = playerColors[playerNumber] || "#6b7280"
 
@@ -40,9 +40,6 @@ export function PlayerInfo({ player, position, wallsRemaining, isActive }: Playe
                 />
                 <Box flex={1}>
                     <Typography variant="h6">{player.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Position: ({position.x}, {position.y})
-                    </Typography>
                 </Box>
                 <Chip
                     label={`${wallsRemaining} walls`}

@@ -1,4 +1,4 @@
-import { Box, Tooltip } from "@mui/material"
+import { Box } from "@mui/material"
 import type { Position } from "../model/game"
 
 interface WallSlotProps {
@@ -12,20 +12,14 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
     const GAP = 8
     const WALL_COLOR = "#475569" // Slate-600
 
-    // Offset to center the hitbox interaction between cells (prevents overlap jumping)
-    // Hitbox covers from Middle of Cell X to Middle of Cell X+1
     const HITBOX_OFFSET = CELL_SIZE / 2
     const HITBOX_LENGTH = CELL_SIZE + GAP
 
-    // Full Visual Dimensions of a wall
     const WALL_LENGTH = CELL_SIZE * 2 + GAP
     const WALL_THICKNESS = GAP
 
-    // 1. RENDER PLACED WALLS (Solid, Static)
-    // --------------------------------------
     if (occupiedOrientation === "HORIZONTAL") {
         return (
-            <Tooltip title={`Wall: (${position.x}, ${position.y}) HORIZONTAL`}>
                 <Box
                     sx={{
                         position: "absolute",
@@ -39,13 +33,11 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
                         zIndex: 10,
                     }}
                 />
-            </Tooltip>
         )
     }
 
     if (occupiedOrientation === "VERTICAL") {
         return (
-            <Tooltip title={`Wall: (${position.x}, ${position.y}) VERTICAL`}>
                 <Box
                     sx={{
                         position: "absolute",
@@ -59,17 +51,13 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
                         zIndex: 10,
                     }}
                 />
-            </Tooltip>
         )
     }
-
-    // 2. RENDER INTERACTIVE HITBOXES (Transparent, Stable)
-    // ----------------------------------------------------
 
     const ghostStyle = {
         position: "absolute",
         bgcolor: WALL_COLOR,
-        opacity: 0, // Hidden by default
+        opacity: 0,
         borderRadius: 1,
         pointerEvents: "none",
         transition: "opacity 0.1s ease-in-out",
@@ -81,7 +69,6 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
         bgcolor: "transparent",
         cursor: "pointer",
         zIndex: 5,
-        // When hovering the HITBOX, show the GHOST child
         "&:hover .ghost-wall": {
             opacity: 0.5,
         }
@@ -89,25 +76,20 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
 
     return (
         <>
-            {/* Horizontal Hitbox Zone */}
-            <Tooltip title={`Place Horizontal`}>
                 <Box
                     onClick={() => onWallClick(position, "HORIZONTAL")}
                     sx={{
                         ...hitBoxCommonStyle,
-                        // Hitbox starts at Center of Cell X, goes to Center of Cell X+1
                         left: position.x * (CELL_SIZE + GAP) + HITBOX_OFFSET,
                         top: position.y * (CELL_SIZE + GAP) + CELL_SIZE,
                         width: HITBOX_LENGTH,
-                        height: GAP, // Keep height tight to the gap to avoid vertical overlap
+                        height: GAP,
                     }}
                 >
-                    {/* Horizontal Ghost Wall (Visual Preview) */}
                     <Box
                         className="ghost-wall"
                         sx={{
                             ...ghostStyle,
-                            // Position relative to the offset hitbox to center the visual wall
                             left: -HITBOX_OFFSET,
                             top: 0,
                             width: WALL_LENGTH,
@@ -115,22 +97,17 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
                         }}
                     />
                 </Box>
-            </Tooltip>
 
-            {/* Vertical Hitbox Zone */}
-            <Tooltip title={`Place Vertical`}>
                 <Box
                     onClick={() => onWallClick(position, "VERTICAL")}
                     sx={{
                         ...hitBoxCommonStyle,
-                        // Hitbox starts at Center of Row Y, goes to Center of Row Y+1
                         left: position.x * (CELL_SIZE + GAP) + CELL_SIZE,
                         top: position.y * (CELL_SIZE + GAP) + HITBOX_OFFSET,
                         width: GAP,
                         height: HITBOX_LENGTH,
                     }}
                 >
-                    {/* Vertical Ghost Wall (Visual Preview) */}
                     <Box
                         className="ghost-wall"
                         sx={{
@@ -142,7 +119,6 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
                         }}
                     />
                 </Box>
-            </Tooltip>
         </>
     )
 }
