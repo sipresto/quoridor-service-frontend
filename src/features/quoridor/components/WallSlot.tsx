@@ -1,4 +1,4 @@
-import { Box } from "@mui/material"
+import { Box, Tooltip } from "@mui/material"
 import type { Position } from "../model/game"
 
 interface WallSlotProps {
@@ -12,7 +12,7 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
     const GAP = 8
     const WALL_COLOR = "#475569"
 
-
+    // Horizontal wall: sits in the gap below the cell
     const horizontalStyle = {
         left: position.x * (CELL_SIZE + GAP),
         top: position.y * (CELL_SIZE + GAP) + CELL_SIZE,
@@ -20,6 +20,7 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
         height: GAP,
     }
 
+    // Vertical wall: sits in the gap to the right of the cell
     const verticalStyle = {
         left: position.x * (CELL_SIZE + GAP) + CELL_SIZE,
         top: position.y * (CELL_SIZE + GAP),
@@ -29,31 +30,35 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
 
     if (occupiedOrientation === "HORIZONTAL") {
         return (
-            <Box
-                sx={{
-                    position: "absolute",
-                    bgcolor: WALL_COLOR,
-                    borderRadius: 1,
-                    boxShadow: 2,
-                    zIndex: 10,
-                    ...horizontalStyle
-                }}
-            />
+            <Tooltip title={`Wall: (${position.x}, ${position.y}) HORIZONTAL`}>
+                <Box
+                    sx={{
+                        position: "absolute",
+                        bgcolor: WALL_COLOR,
+                        borderRadius: 1,
+                        boxShadow: 2,
+                        zIndex: 10,
+                        ...horizontalStyle
+                    }}
+                />
+            </Tooltip>
         )
     }
 
     if (occupiedOrientation === "VERTICAL") {
         return (
-            <Box
-                sx={{
-                    position: "absolute",
-                    bgcolor: WALL_COLOR,
-                    borderRadius: 1,
-                    boxShadow: 2,
-                    zIndex: 10,
-                    ...verticalStyle
-                }}
-            />
+            <Tooltip title={`Wall: (${position.x}, ${position.y}) VERTICAL`}>
+                <Box
+                    sx={{
+                        position: "absolute",
+                        bgcolor: WALL_COLOR,
+                        borderRadius: 1,
+                        boxShadow: 2,
+                        zIndex: 10,
+                        ...verticalStyle
+                    }}
+                />
+            </Tooltip>
         )
     }
 
@@ -70,21 +75,25 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
 
     return (
         <>
-            <Box
-                onClick={() => onWallClick(position, "HORIZONTAL")}
-                sx={{
-                    ...hitBoxStyle,
-                    ...horizontalStyle
-                }}
-            />
+            <Tooltip title={`Place Horizontal (${position.x}, ${position.y})`}>
+                <Box
+                    onClick={() => onWallClick(position, "HORIZONTAL")}
+                    sx={{
+                        ...hitBoxStyle,
+                        ...horizontalStyle
+                    }}
+                />
+            </Tooltip>
 
-            <Box
-                onClick={() => onWallClick(position, "VERTICAL")}
-                sx={{
-                    ...hitBoxStyle,
-                    ...verticalStyle
-                }}
-            />
+            <Tooltip title={`Place Vertical (${position.x}, ${position.y})`}>
+                <Box
+                    onClick={() => onWallClick(position, "VERTICAL")}
+                    sx={{
+                        ...hitBoxStyle,
+                        ...verticalStyle
+                    }}
+                />
+            </Tooltip>
         </>
     )
 }

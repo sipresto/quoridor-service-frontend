@@ -31,22 +31,17 @@ export function QuoridorPage() {
 
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-            // Allow manual control of whichever player's turn it is
             void move(gameState.currentPlayer, position)
         }
     }
 
     const handleWallClick = (position: Position, orientation: "HORIZONTAL" | "VERTICAL") => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-            const backendPosition = { ...position }
-
-            if (orientation === "VERTICAL") {
-                backendPosition.x += 1
-            } else if (orientation === "HORIZONTAL") {
-                backendPosition.y += 1
-            }
-
-            void placeWall(gameState.currentPlayer, backendPosition, orientation)
+            // SENDING RAW COORDINATES:
+            // The hitbox logic corresponds to the 0-based grid index.
+            // We send this raw value. The backend (or game logic) handles the 0->1 conversion
+            // implicitly, as observed by the fact that sending 0 creates a wall at backend-position 1.
+            void placeWall(gameState.currentPlayer, position, orientation)
         }
     }
 

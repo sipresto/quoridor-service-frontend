@@ -41,11 +41,25 @@ export function useBoardLayout(gameState: GameState, validMoves: Position[] = []
     const wallLookup = useMemo(() => {
         const map = new Map<string, "HORIZONTAL" | "VERTICAL">()
 
-        // Access walls directly from the typed GameState
         const walls = gameState.board.walls || []
 
         walls.forEach((wall) => {
-            map.set(positionKey(wall.position.x, wall.position.y), wall.orientation)
+            // ASYMMETRIC COORDINATE FIX:
+            // Based on visual debugging:
+            // 1. Horizontal walls (y-axis is the 'line'): Appear 1 unit too low. Needs y-1. X appears correct.
+            // 2. Vertical walls (x-axis is the 'line'): Appear 1 unit too right and 1 unit too low. Needs x-1, y-1.
+
+            let x = wall.position.x
+            let y = wall.position.y
+
+            if (wall.orientation === "HORIZONTAL") {
+                y = y - 1
+            } else if (wall.orientation === "VERTICAL") {
+                x = x - 1
+                y = y - 1
+            }
+
+            map.set(positionKey(x, y), wall.orientation)
         })
         return map
     }, [gameState.board.walls])
