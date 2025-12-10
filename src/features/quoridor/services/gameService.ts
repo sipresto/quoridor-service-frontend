@@ -1,104 +1,94 @@
-import type { GameAction, GameState, Player, Wall } from "../model/game"
+import axios from "axios"
+import type { GameState, Position } from "../model/game"
+import { getAuthHeaders } from "./authToken"
 
-type GameStateListener = (state: GameState) => void
+// Use the Vite proxy path which will be rewritten to /api/quoridor on the backend
+const API_BASE_PATH = "/api/games/quoridor"
 
-class MockGameService {
-    private readonly listeners = new Set<GameStateListener>()
-    private currentGame: GameState | null = null
-    private pollTimer: number | null = null
-
-    connect() {
-        if (!this.currentGame) {
-            this.currentGame = this.createInitialGameState()
-        }
-
-        this.startPolling()
-        this.broadcast()
-    }
-
-    disconnect() {
-        if (this.pollTimer !== null) {
-            clearInterval(this.pollTimer)
-            this.pollTimer = null
-        }
-    }
-
-    onMessage(listener: GameStateListener) {
-        this.listeners.add(listener)
-
-        if (this.currentGame) {
-            listener(this.currentGame)
-        }
-
-        return () => {
-            this.listeners.delete(listener)
-        }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async sendAction(_action: GameAction) {
-        if (this.currentGame) {
-            this.broadcast()
-        }
-    }
-
-    private startPolling() {
-        if (this.pollTimer !== null) {
-            return
-        }
-
-        this.pollTimer = window.setInterval(() => {
-            if (this.currentGame) {
-                this.broadcast()
+export async function getGameState(gameId: string): Promise<GameState> {
+    const { data } = await axios.get<GameState>(
+        `${API_BASE_PATH}/${gameId}`,
+        { 
+            headers: {
+                ...getAuthHeaders(),
+                'Accept': 'application/json'
             }
-        }, 1000)
-    }
-
-    private broadcast() {
-        if (!this.currentGame) {
-            return
         }
-
-        for (const listener of this.listeners) {
-            listener(this.currentGame)
-        }
+    )
+    
+    // Validate that we received JSON, not HTML
+    if (typeof data === 'string' && data.trim().startsWith('<!doctype')) {
+        throw new Error('Received HTML instead of JSON. Check API endpoint configuration.')
     }
-
-    private createInitialGameState(): GameState {
-        const BOARD_SIZE = 9
-
-        const board: number[][] = Array.from({ length: BOARD_SIZE }, () =>
-            Array.from({ length: BOARD_SIZE }, () => 1),
-        )
-
-        const players: Player[] = [
-            {
-                id: 1,
-                position: { row: BOARD_SIZE - 1, col: Math.floor(BOARD_SIZE / 2) },
-                wallsRemaining: 10,
-                color: "#1976d2",
-            },
-            {
-                id: 2,
-                position: { row: 0, col: Math.floor(BOARD_SIZE / 2) },
-                wallsRemaining: 10,
-                color: "#dc004e",
-            },
-        ]
-
-        const walls: Wall[] = []
-
-        return {
-            board,
-            players,
-            walls,
-            currentPlayer: 1,
-            gameStatus: "playing",
-            winner: null,
-        }
+    
+    // Validate that we have a proper game state structure
+    if (!data || typeof data !== 'object' || !data.board) {
+        throw new Error('Invalid game state structure received from server')
     }
-
+    
+    return data
 }
 
-export const gameService = new MockGameService()
+export async function movePlayer(gameId: string, playerId: number, position: Position): Promise<GameState> {
+    const { data } = await axios.post<GameState>(
+        `${API_BASE_PATH}/${gameId}/move`,
+        {
+            player: playerId,
+            to: { x: position.x, y: position.y }
+        },
+        { headers: getAuthHeaders() }
+    )
+    return data
+}
 
+export async function placeWall(
+    gameId: string,
+    playerId: number,
+    position: Position,
+    orientation: "HORIZONTAL" | "VERTICAL"
+): Promise<GameState> {
+    const { data } = await axios.post<GameState>(
+        `${API_BASE_PATH}/${gameId}/wall`,
+        {
+            player: playerId,
+            wall: {
+                position: { x: position.x, y: position.y },
+                orientation
+            }
+        },
+        { headers: getAuthHeaders() }
+    )
+    return data
+}
+
+export function pollGameState(
+    gameId: string,
+    onUpdate: (gameState: GameState) => void,
+    onError: (error: unknown) => void,
+    intervalMs: number = 1000
+) {
+    let consecutiveErrors = 0
+    const MAX_CONSECUTIVE_ERRORS = 5
+
+    const fetchData = async () => {
+        try {
+            const data = await getGameState(gameId)
+            consecutiveErrors = 0
+            onUpdate(data)
+        } catch (error: unknown) {
+            consecutiveErrors++
+            onError(error)
+
+            if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+                console.error(`Stopping poll after ${MAX_CONSECUTIVE_ERRORS} consecutive errors`)
+                clearInterval(intervalId)
+            }
+        }
+    }
+
+    void fetchData()
+
+    const intervalId = setInterval(fetchData, intervalMs)
+
+    return () => clearInterval(intervalId)
+}

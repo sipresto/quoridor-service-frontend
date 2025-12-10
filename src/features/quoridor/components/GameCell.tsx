@@ -1,14 +1,20 @@
 import { Box } from "@mui/material"
-import type { Player, Position } from "../model/game"
+import type { Position } from "../model/game"
 
 interface GameCellProps {
     position: Position
-    player: Player | undefined
-    isValid: boolean
+    playerNumber: number | null  // 1 or 2, or null if empty
     onClick: (pos: Position) => void
 }
 
-export function GameCell({ position, player, isValid, onClick }: GameCellProps) {
+const playerColors: Record<number, string> = {
+    1: "#3b82f6", // blue
+    2: "#ef4444"  // red
+}
+
+export function GameCell({ position, playerNumber, onClick }: GameCellProps) {
+    const color = playerNumber ? playerColors[playerNumber] : undefined
+
     return (
         <Box
             onClick={() => onClick(position)}
@@ -18,19 +24,19 @@ export function GameCell({ position, player, isValid, onClick }: GameCellProps) 
                 border: 2,
                 borderColor: "divider",
                 borderRadius: 1,
-                bgcolor: player ? player.color : "background.default",
-                cursor: isValid ? "pointer" : "default",
+                bgcolor: color || "background.default",
+                cursor: "pointer",
                 transition: "all 0.2s ease",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 "&:hover": {
-                    bgcolor: player ? player.color : isValid ? "action.hover" : "background.default",
-                    transform: isValid ? "scale(1.05)" : "none",
+                    bgcolor: color || "action.hover",
+                    transform: "scale(1.05)",
                 },
             }}
         >
-            {player && (
+            {playerNumber && (
                 <Box
                     sx={{
                         width: 30,
@@ -38,7 +44,7 @@ export function GameCell({ position, player, isValid, onClick }: GameCellProps) 
                         borderRadius: "50%",
                         bgcolor: "white",
                         border: 3,
-                        borderColor: player.color,
+                        borderColor: color,
                     }}
                 />
             )}

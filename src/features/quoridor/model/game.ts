@@ -1,27 +1,41 @@
 export interface Position {
-    row: number
-    col: number
+    x: number
+    y: number
 }
 
 export interface Player {
-    id: number
-    position: Position
-    wallsRemaining: number
-    color: string
+    id: string | null
+    name: string
+    isHuman: boolean
 }
 
 export interface Wall {
     position: Position
-    orientation: "horizontal" | "vertical"
+    orientation: "HORIZONTAL" | "VERTICAL"
+}
+
+export interface Board {
+    player1Position: Position
+    player2Position: Position
+    walls: Wall[]
+}
+
+export interface ValidActions {
+    validMoves: Position[]
+    validWallPlacements: Wall[]
 }
 
 export interface GameState {
-    board: number[][]
-    players: Player[]
-    walls: Wall[]
+    id: string
+    player1: Player
+    player2: Player
     currentPlayer: number
-    gameStatus: "playing" | "finished"
+    board: Board
+    player1WallsRemaining: number
+    player2WallsRemaining: number
+    status: "IN_PROGRESS" | "FINISHED"
     winner: number | null
+    validMoves: ValidActions
 }
 
 export interface MoveAction {
@@ -34,7 +48,7 @@ export interface WallAction {
     type: "wall"
     playerId: number
     position: Position
-    orientation: "horizontal" | "vertical"
+    orientation: "HORIZONTAL" | "VERTICAL"
 }
 
 export type GameAction = MoveAction | WallAction

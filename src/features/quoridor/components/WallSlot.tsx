@@ -3,7 +3,7 @@ import type { Position } from "../model/game"
 
 interface WallSlotProps {
     position: Position
-    onWallClick: (position: Position, orientation: "horizontal" | "vertical") => void
+    onWallClick: (position: Position, orientation: "HORIZONTAL" | "VERTICAL") => void
 }
 
 export function WallSlot({ position, onWallClick }: WallSlotProps) {
@@ -23,7 +23,7 @@ export function WallSlot({ position, onWallClick }: WallSlotProps) {
     return (
         <>
             <Box
-                onClick={() => onWallClick(position, "horizontal")}
+                onClick={() => onWallClick(position, "HORIZONTAL")}
                 sx={{
                     ...hitBoxStyle,
                     left: position.col * (CELL_SIZE + GAP),
@@ -34,7 +34,7 @@ export function WallSlot({ position, onWallClick }: WallSlotProps) {
             />
 
             <Box
-                onClick={() => onWallClick(position, "vertical")}
+                onClick={() => onWallClick(position, "VERTICAL")}
                 sx={{
                     ...hitBoxStyle,
                     left: position.col * (CELL_SIZE + GAP) + CELL_SIZE,

@@ -1,7 +1,43 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+    plugins: [react()],
+    base: '/games/quoridor/',
+
+    server: {
+        host: '0.0.0.0',
+        port: 5175,
+        proxy: {
+            '/auth': {
+                target: 'http://localhost:8280',
+                changeOrigin: true,
+                rewrite: (path) => path,
+            },
+
+            '/api/platform': {
+                target: 'http://localhost:8095',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/platform/, '/api'),
+            },
+
+            '/api/games/quoridor': {
+                target: 'http://localhost:8097',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/games\/quoridor/, '/api/quoridor'),
+            },
+
+            '/platform': {
+                target: 'http://localhost:5173',
+                changeOrigin: true,
+                ws: true,
+                rewrite: (path) => path
+            }
+        }
+    },
+
+    build: {
+        outDir: 'dist',
+        sourcemap: false,
+    }
 })
