@@ -11,7 +11,6 @@ export function GameStatus({ gameState }: GameStatusProps) {
         return (
             <Alert severity="success" sx={{ mb: 2 }}>
                 <Typography variant="h6">Game Over! {winner.name} wins!</Typography>
-                <Typography variant="body2">Player {gameState.winner}</Typography>
             </Alert>
         )
     }
