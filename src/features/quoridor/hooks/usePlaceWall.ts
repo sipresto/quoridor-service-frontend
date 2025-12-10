@@ -1,10 +1,11 @@
-import {useCallback, useState} from "react"
-import type {Position} from "../model/game"
+import { useCallback, useState } from "react"
+import type { Position } from "../model/game"
 import * as gameService from "../services/gameService"
+import { GameError } from "../services/errorHandling"
 
 export function usePlaceWall(gameId: string) {
     const [isPending, setIsPending] = useState(false)
-    const [error, setError] = useState<unknown | null>(null)
+    const [error, setError] = useState<string | null>(null)
 
     const placeWall = useCallback(async (
         playerId: number,
@@ -16,13 +17,17 @@ export function usePlaceWall(gameId: string) {
         try {
             return await gameService.placeWall(gameId, playerId, position, orientation)
         } catch (err) {
-            setError(err)
-            console.error("Wall placement error:", err)
-            throw err
+            if (err instanceof GameError) {
+                setError(err.message)
+            } else if (err instanceof Error) {
+                setError(err.message)
+            } else {
+                setError("An unexpected error occurred")
+            }
         } finally {
             setIsPending(false)
         }
     }, [gameId])
 
-    return { placeWall, isPending, error }
+    return { placeWall, isPending, error, setError }
 }

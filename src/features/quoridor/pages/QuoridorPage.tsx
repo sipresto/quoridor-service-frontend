@@ -15,7 +15,6 @@ export function QuoridorPage() {
 
     const { gameId } = useMemo(() => {
         const params = new URLSearchParams(window.location.search)
-
         const idFromPath = id
         const idFromQuery = params.get("gameId")
         const finalGameId = idFromPath || idFromQuery || "test-game-id"
@@ -26,8 +25,9 @@ export function QuoridorPage() {
     }, [id])
 
     const { gameState, isLoading, error } = useGameState(gameId)
-    const { move, error: moveError } = useMovePlayer(gameId)
-    const { placeWall, error: wallError } = usePlaceWall(gameId)
+
+    const { move, error: moveError, setError: setMoveError } = useMovePlayer(gameId)
+    const { placeWall, error: wallError, setError: setWallError } = usePlaceWall(gameId)
 
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
@@ -37,17 +37,19 @@ export function QuoridorPage() {
 
     const handleWallClick = (position: Position, orientation: "HORIZONTAL" | "VERTICAL") => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-
             const backendPosition = { ...position }
-
             if (orientation === "HORIZONTAL") {
                 backendPosition.y += 1
             } else {
                 backendPosition.x += 1
             }
-
             void placeWall(gameState.currentPlayer, backendPosition, orientation)
         }
+    }
+
+    const handleCloseError = () => {
+        setMoveError(null)
+        setWallError(null)
     }
 
     if (isLoading) {
@@ -79,8 +81,19 @@ export function QuoridorPage() {
             <CssBaseline />
             <Container maxWidth="lg">
                 <Box py={4}>
-                    <Snackbar open={!!moveError || !!wallError} autoHideDuration={6000}>
-                        <Alert severity="error">Invalid Move or Server Error</Alert>
+                    <Snackbar
+                        open={!!moveError || !!wallError}
+                        autoHideDuration={6000}
+                        onClose={handleCloseError}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                    >
+                        <Alert
+                            severity="error"
+                            onClose={handleCloseError}
+                            sx={{ width: '100%' }}
+                        >
+                            {moveError || wallError}
+                        </Alert>
                     </Snackbar>
 
                     <GameStatus gameState={gameState} />
