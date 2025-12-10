@@ -10,35 +10,33 @@ interface WallSlotProps {
 export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlotProps) {
     const CELL_SIZE = 50
     const GAP = 8
-    const WALL_COLOR = "#475569"
+    const WALL_COLOR = "#475569" // Slate-600
 
-    // Horizontal wall: sits in the gap below the cell
-    const horizontalStyle = {
-        left: position.x * (CELL_SIZE + GAP),
-        top: position.y * (CELL_SIZE + GAP) + CELL_SIZE,
-        width: CELL_SIZE * 2 + GAP,
-        height: GAP,
-    }
+    // Offset to center the hitbox interaction between cells (prevents overlap jumping)
+    // Hitbox covers from Middle of Cell X to Middle of Cell X+1
+    const HITBOX_OFFSET = CELL_SIZE / 2
+    const HITBOX_LENGTH = CELL_SIZE + GAP
 
-    // Vertical wall: sits in the gap to the right of the cell
-    const verticalStyle = {
-        left: position.x * (CELL_SIZE + GAP) + CELL_SIZE,
-        top: position.y * (CELL_SIZE + GAP),
-        width: GAP,
-        height: CELL_SIZE * 2 + GAP,
-    }
+    // Full Visual Dimensions of a wall
+    const WALL_LENGTH = CELL_SIZE * 2 + GAP
+    const WALL_THICKNESS = GAP
 
+    // 1. RENDER PLACED WALLS (Solid, Static)
+    // --------------------------------------
     if (occupiedOrientation === "HORIZONTAL") {
         return (
             <Tooltip title={`Wall: (${position.x}, ${position.y}) HORIZONTAL`}>
                 <Box
                     sx={{
                         position: "absolute",
+                        left: position.x * (CELL_SIZE + GAP),
+                        top: position.y * (CELL_SIZE + GAP) + CELL_SIZE,
+                        width: WALL_LENGTH,
+                        height: WALL_THICKNESS,
                         bgcolor: WALL_COLOR,
                         borderRadius: 1,
                         boxShadow: 2,
                         zIndex: 10,
-                        ...horizontalStyle
                     }}
                 />
             </Tooltip>
@@ -51,48 +49,99 @@ export function WallSlot({ position, occupiedOrientation, onWallClick }: WallSlo
                 <Box
                     sx={{
                         position: "absolute",
+                        left: position.x * (CELL_SIZE + GAP) + CELL_SIZE,
+                        top: position.y * (CELL_SIZE + GAP),
+                        width: WALL_THICKNESS,
+                        height: WALL_LENGTH,
                         bgcolor: WALL_COLOR,
                         borderRadius: 1,
                         boxShadow: 2,
                         zIndex: 10,
-                        ...verticalStyle
                     }}
                 />
             </Tooltip>
         )
     }
 
-    const hitBoxStyle = {
+    // 2. RENDER INTERACTIVE HITBOXES (Transparent, Stable)
+    // ----------------------------------------------------
+
+    const ghostStyle = {
+        position: "absolute",
+        bgcolor: WALL_COLOR,
+        opacity: 0, // Hidden by default
+        borderRadius: 1,
+        pointerEvents: "none",
+        transition: "opacity 0.1s ease-in-out",
+        zIndex: 20
+    }
+
+    const hitBoxCommonStyle = {
         position: "absolute",
         bgcolor: "transparent",
         cursor: "pointer",
-        transition: "background-color 0.2s",
         zIndex: 5,
-        "&:hover": {
-            bgcolor: "rgba(0,0,0,0.2)",
+        // When hovering the HITBOX, show the GHOST child
+        "&:hover .ghost-wall": {
+            opacity: 0.5,
         }
     } as const
 
     return (
         <>
-            <Tooltip title={`Place Horizontal (${position.x}, ${position.y})`}>
+            {/* Horizontal Hitbox Zone */}
+            <Tooltip title={`Place Horizontal`}>
                 <Box
                     onClick={() => onWallClick(position, "HORIZONTAL")}
                     sx={{
-                        ...hitBoxStyle,
-                        ...horizontalStyle
+                        ...hitBoxCommonStyle,
+                        // Hitbox starts at Center of Cell X, goes to Center of Cell X+1
+                        left: position.x * (CELL_SIZE + GAP) + HITBOX_OFFSET,
+                        top: position.y * (CELL_SIZE + GAP) + CELL_SIZE,
+                        width: HITBOX_LENGTH,
+                        height: GAP, // Keep height tight to the gap to avoid vertical overlap
                     }}
-                />
+                >
+                    {/* Horizontal Ghost Wall (Visual Preview) */}
+                    <Box
+                        className="ghost-wall"
+                        sx={{
+                            ...ghostStyle,
+                            // Position relative to the offset hitbox to center the visual wall
+                            left: -HITBOX_OFFSET,
+                            top: 0,
+                            width: WALL_LENGTH,
+                            height: WALL_THICKNESS
+                        }}
+                    />
+                </Box>
             </Tooltip>
 
-            <Tooltip title={`Place Vertical (${position.x}, ${position.y})`}>
+            {/* Vertical Hitbox Zone */}
+            <Tooltip title={`Place Vertical`}>
                 <Box
                     onClick={() => onWallClick(position, "VERTICAL")}
                     sx={{
-                        ...hitBoxStyle,
-                        ...verticalStyle
+                        ...hitBoxCommonStyle,
+                        // Hitbox starts at Center of Row Y, goes to Center of Row Y+1
+                        left: position.x * (CELL_SIZE + GAP) + CELL_SIZE,
+                        top: position.y * (CELL_SIZE + GAP) + HITBOX_OFFSET,
+                        width: GAP,
+                        height: HITBOX_LENGTH,
                     }}
-                />
+                >
+                    {/* Vertical Ghost Wall (Visual Preview) */}
+                    <Box
+                        className="ghost-wall"
+                        sx={{
+                            ...ghostStyle,
+                            left: 0,
+                            top: -HITBOX_OFFSET,
+                            width: WALL_THICKNESS,
+                            height: WALL_LENGTH
+                        }}
+                    />
+                </Box>
             </Tooltip>
         </>
     )

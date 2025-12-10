@@ -37,11 +37,20 @@ export function QuoridorPage() {
 
     const handleWallClick = (position: Position, orientation: "HORIZONTAL" | "VERTICAL") => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-            // SENDING RAW COORDINATES:
-            // The hitbox logic corresponds to the 0-based grid index.
-            // We send this raw value. The backend (or game logic) handles the 0->1 conversion
-            // implicitly, as observed by the fact that sending 0 creates a wall at backend-position 1.
-            void placeWall(gameState.currentPlayer, position, orientation)
+            // COORDINATE FIX FOR PLACEMENT:
+            // Frontend is 0-based. Backend needs 1-based for the "Gap" axis only.
+
+            const backendPosition = { ...position }
+
+            if (orientation === "HORIZONTAL") {
+                // Shift Y (gap row) by +1. Keep X (column span) as is.
+                backendPosition.y += 1
+            } else {
+                // Shift X (gap col) by +1. Keep Y (row span) as is.
+                backendPosition.x += 1
+            }
+
+            void placeWall(gameState.currentPlayer, backendPosition, orientation)
         }
     }
 

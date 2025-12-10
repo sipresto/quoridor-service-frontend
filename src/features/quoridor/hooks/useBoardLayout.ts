@@ -44,11 +44,6 @@ export function useBoardLayout(gameState: GameState, validMoves: Position[] = []
         const walls = gameState.board.walls || []
 
         walls.forEach((wall) => {
-            // ASYMMETRIC COORDINATE FIX:
-            // Based on visual debugging:
-            // 1. Horizontal walls (y-axis is the 'line'): Appear 1 unit too low. Needs y-1. X appears correct.
-            // 2. Vertical walls (x-axis is the 'line'): Appear 1 unit too right and 1 unit too low. Needs x-1, y-1.
-
             let x = wall.position.x
             let y = wall.position.y
 
@@ -56,7 +51,6 @@ export function useBoardLayout(gameState: GameState, validMoves: Position[] = []
                 y = y - 1
             } else if (wall.orientation === "VERTICAL") {
                 x = x - 1
-                y = y - 1
             }
 
             map.set(positionKey(x, y), wall.orientation)
