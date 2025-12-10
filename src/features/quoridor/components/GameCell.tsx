@@ -3,13 +3,13 @@ import type { Position } from "../model/game"
 
 interface GameCellProps {
     position: Position
-    playerNumber: number | null  // 1 or 2, or null if empty
+    playerNumber: number | null
     onClick: (pos: Position) => void
 }
 
 const playerColors: Record<number, string> = {
-    1: "#3b82f6", // blue
-    2: "#ef4444"  // red
+    1: "#3b82f6",
+    2: "#ef4444"
 }
 
 export function GameCell({ position, playerNumber, onClick }: GameCellProps) {

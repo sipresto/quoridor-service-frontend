@@ -9,12 +9,12 @@ interface PlayerInfoProps {
 }
 
 const playerColors: Record<number, string> = {
-    1: "#3b82f6", // blue
-    2: "#ef4444"  // red
+    1: "#3b82f6",
+    2: "#ef4444"
 }
 
 export function PlayerInfo({ player, position, wallsRemaining, isActive }: PlayerInfoProps) {
-    const playerNumber = player.isHuman ? 1 : 2  // Simplified assumption
+    const playerNumber = player.isHuman ? 1 : 2
     const color = playerColors[playerNumber] || "#6b7280"
 
     return (

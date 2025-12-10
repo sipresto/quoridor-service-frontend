@@ -2,7 +2,6 @@ import axios from "axios"
 import type { GameState, Position } from "../model/game"
 import { getAuthHeaders } from "./authToken"
 
-// Use the Vite proxy path which will be rewritten to /api/quoridor on the backend
 const API_BASE_PATH = "/api/games/quoridor"
 
 export async function getGameState(gameId: string): Promise<GameState> {
@@ -16,12 +15,6 @@ export async function getGameState(gameId: string): Promise<GameState> {
         }
     )
     
-    // Validate that we received JSON, not HTML
-    if (typeof data === 'string' && data.trim().startsWith('<!doctype')) {
-        throw new Error('Received HTML instead of JSON. Check API endpoint configuration.')
-    }
-    
-    // Validate that we have a proper game state structure
     if (!data || typeof data !== 'object' || !data.board) {
         throw new Error('Invalid game state structure received from server')
     }

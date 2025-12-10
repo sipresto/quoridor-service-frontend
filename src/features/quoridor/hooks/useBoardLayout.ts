@@ -6,7 +6,7 @@ export const BOARD_SIZE = 9
 export interface CellView {
     key: string
     position: Position
-    playerNumber: number | null  // 1 or 2, or null
+    playerNumber: number | null
 }
 
 export interface WallSlotView {
@@ -20,11 +20,9 @@ export function useBoardLayout(gameState: GameState) {
     const playerLookup = useMemo(() => {
         const map = new Map<string, number>()
 
-        // Add player1 position
         const p1Pos = gameState.board.player1Position
         map.set(positionKey(p1Pos.x, p1Pos.y), 1)
 
-        // Add player2 position
         const p2Pos = gameState.board.player2Position
         map.set(positionKey(p2Pos.x, p2Pos.y), 2)
 

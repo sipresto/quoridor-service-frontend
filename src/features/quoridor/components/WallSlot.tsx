@@ -26,8 +26,8 @@ export function WallSlot({ position, onWallClick }: WallSlotProps) {
                 onClick={() => onWallClick(position, "HORIZONTAL")}
                 sx={{
                     ...hitBoxStyle,
-                    left: position.col * (CELL_SIZE + GAP),
-                    top: position.row * (CELL_SIZE + GAP) + CELL_SIZE,
+                    left: position.x * (CELL_SIZE + GAP),
+                    top: position.y * (CELL_SIZE + GAP) + CELL_SIZE,
                     width: CELL_SIZE * 2 + GAP,
                     height: GAP,
                 }}
@@ -37,8 +37,8 @@ export function WallSlot({ position, onWallClick }: WallSlotProps) {
                 onClick={() => onWallClick(position, "VERTICAL")}
                 sx={{
                     ...hitBoxStyle,
-                    left: position.col * (CELL_SIZE + GAP) + CELL_SIZE,
-                    top: position.row * (CELL_SIZE + GAP),
+                    left: position.x * (CELL_SIZE + GAP) + CELL_SIZE,
+                    top: position.y * (CELL_SIZE + GAP),
                     width: GAP,
                     height: CELL_SIZE * 2 + GAP,
                 }}
