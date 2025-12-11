@@ -17,7 +17,6 @@ function App() {
                 <SecurityContextProvider>
                     <BrowserRouter basename="/games/quoridor">
                         <Routes>
-                            {/* Use RouteGuard as a wrapper component */}
                             <Route path="/:id" element={
                                 <RouteGuard>
                                     <QuoridorPage />
