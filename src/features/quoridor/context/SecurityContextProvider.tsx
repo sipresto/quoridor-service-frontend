@@ -54,15 +54,6 @@ export default function SecurityContextProvider({ children }: PropsWithChildren)
         setTimeout(initialize, 0)
     }, [refreshUserData])
 
-    const login = useCallback(() => {
-        window.location.href = import.meta.env.VITE_PLATFORM_URL || 'http://localhost:5173'
-    }, [])
-
-    const logout = useCallback(() => {
-        setLoggedInUser(undefined)
-        window.location.href = import.meta.env.VITE_PLATFORM_URL || 'http://localhost:5173'
-    }, [])
-
     const isAuthenticated = useCallback(() => {
         return !!getToken()
     }, [])
@@ -72,9 +63,6 @@ export default function SecurityContextProvider({ children }: PropsWithChildren)
             isInitialised,
             isAuthenticated,
             loggedInUser,
-            login,
-            logout,
-            keycloakInstance: null,
             refreshUserData,
         }}>
             {children}
