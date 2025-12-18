@@ -44,12 +44,11 @@ export async function getGameState(gameId: string): Promise<GameState> {
     }
 }
 
-export async function movePlayer(gameId: string, playerId: number, position: Position): Promise<GameState> {
+export async function movePlayer(gameId: string, position: Position): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
             `${API_BASE_PATH}/${gameId}/move`,
             {
-                player: playerId,
                 to: { x: position.x, y: position.y }
             },
             { headers: getAuthHeaders() }
@@ -62,7 +61,6 @@ export async function movePlayer(gameId: string, playerId: number, position: Pos
 
 export async function placeWall(
     gameId: string,
-    playerId: number,
     position: Position,
     orientation: "HORIZONTAL" | "VERTICAL"
 ): Promise<GameState> {
@@ -70,7 +68,6 @@ export async function placeWall(
         const { data } = await axios.post<GameState>(
             `${API_BASE_PATH}/${gameId}/wall`,
             {
-                player: playerId,
                 wall: {
                     position: { x: position.x, y: position.y },
                     orientation
@@ -97,11 +94,10 @@ export async function createRematch(gameId: string): Promise<GameState> {
     }
 }
 
-export async function resignGame(gameId: string, playerId: number): Promise<GameState> {
+export async function resignGame(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
             `${API_BASE_PATH}/${gameId}/resign`,
-            { player: playerId },
             { headers: getAuthHeaders() }
         );
         return data;
