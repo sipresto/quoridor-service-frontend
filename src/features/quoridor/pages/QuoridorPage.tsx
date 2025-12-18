@@ -6,9 +6,10 @@ import {
     ThemeProvider,
     Alert,
     Snackbar,
-    Button,
+    Tooltip
 } from "@mui/material"
-import { useMemo } from "react"
+import FlagIcon from '@mui/icons-material/Flag';
+import {useMemo, useState} from "react"
 import {useNavigate, useParams} from "react-router-dom"
 import { GameBoard } from "../components/GameBoard"
 import { PlayerInfo } from "../components/PlayerInfo"
@@ -21,6 +22,7 @@ import type { Position } from "../model/game"
 import {useResign} from "../hooks/useResign.ts";
 import {GameFinished} from "../components/GameFinished.tsx";
 import {useRematch} from "../hooks/useRematch.ts";
+import {ResignDialog} from "../components/ResignDialog.tsx";
 
 export function QuoridorPage() {
     const { id } = useParams<{ id: string }>()
@@ -36,6 +38,7 @@ export function QuoridorPage() {
         }
     }, [id])
 
+    const [confirmResignOpen, setConfirmResignOpen] = useState(false)
     const { gameState, isLoading, error } = useGameState(gameId)
     const navigate = useNavigate()
     const { move, error: moveError, setError: setMoveError } = useMovePlayer(gameId)
@@ -144,7 +147,9 @@ export function QuoridorPage() {
                         </Alert>
                     </Snackbar>
 
+
                     <GameStatus gameState={gameState} />
+
 
                     <Box display="flex" gap={4} flexWrap="wrap" justifyContent="center" mb={3}>
                         <PlayerInfo
@@ -153,12 +158,16 @@ export function QuoridorPage() {
                             wallsRemaining={gameState.player1WallsRemaining}
                             isActive={gameState.currentPlayer === 1}
                         />
+
                         <PlayerInfo
                             player={gameState.player2}
                             position={gameState.board.player2Position}
                             wallsRemaining={gameState.player2WallsRemaining}
                             isActive={gameState.currentPlayer === 2}
                         />
+                        <Tooltip sx={{mt:3, scale:2}} title="Resign?" arrow>
+                            <FlagIcon color="error" onClick={() => setConfirmResignOpen(true)} />
+                        </Tooltip>
                     </Box>
 
                     <Box display="flex" justifyContent="center" flexDirection="column" alignItems="center">
@@ -169,9 +178,14 @@ export function QuoridorPage() {
                         />
                     </Box>
 
-                    <Button onClick={handleResignClick}>
-                        Resign
-                    </Button>
+                    <ResignDialog
+                        open={confirmResignOpen}
+                        onCancel={() => setConfirmResignOpen(false)}
+                        onConfirm={() => {
+                            setConfirmResignOpen(false)
+                            handleResignClick()
+                        }}
+                    />
                 </Box>
             </Container>
         </ThemeProvider>
