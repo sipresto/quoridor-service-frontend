@@ -4,6 +4,7 @@ import { getAuthHeaders } from "./authToken"
 import { handleAxiosError } from "./errorHandling";
 
 const API_BASE_PATH = "/api/games/quoridor"
+const BACKEND_URL: string = import.meta.env.VITE_BACKEND_URL;
 
 interface GameCreatedResponse {
     gameUrl: string;
@@ -100,7 +101,7 @@ export async function createRematch(gameId: string): Promise<GameState> {
 export async function resignGame(gameId: string, playerId: number): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/resign`,
+            `${BACKEND_URL}/${gameId}/resign`,
             { player: playerId },
             { headers: getAuthHeaders() }
         );

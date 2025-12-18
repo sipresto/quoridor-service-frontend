@@ -1,6 +1,15 @@
-import { Box, CircularProgress, Container, CssBaseline, ThemeProvider, Alert, Snackbar } from "@mui/material"
+import {
+    Box,
+    CircularProgress,
+    Container,
+    CssBaseline,
+    ThemeProvider,
+    Alert,
+    Snackbar,
+    Button,
+} from "@mui/material"
 import { useMemo } from "react"
-import { useParams } from "react-router-dom"
+import {useNavigate, useParams} from "react-router-dom"
 import { GameBoard } from "../components/GameBoard"
 import { PlayerInfo } from "../components/PlayerInfo"
 import { GameStatus } from "../components/GameStatus"
@@ -9,6 +18,9 @@ import { useMovePlayer } from "../hooks/useMovePlayer"
 import { usePlaceWall } from "../hooks/usePlaceWall"
 import { quoridorTheme } from "../theme"
 import type { Position } from "../model/game"
+import {useResign} from "../hooks/useResign.ts";
+import {GameFinished} from "../components/GameFinished.tsx";
+import {useRematch} from "../hooks/useRematch.ts";
 
 export function QuoridorPage() {
     const { id } = useParams<{ id: string }>()
@@ -25,10 +37,11 @@ export function QuoridorPage() {
     }, [id])
 
     const { gameState, isLoading, error } = useGameState(gameId)
-
+    const navigate = useNavigate()
     const { move, error: moveError, setError: setMoveError } = useMovePlayer(gameId)
     const { placeWall, error: wallError, setError: setWallError } = usePlaceWall(gameId)
-
+    const { resignGame, error: resignError, setError: setResignError } = useResign(gameId)
+    const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId)
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
             void move(gameState.currentPlayer, position)
@@ -47,9 +60,25 @@ export function QuoridorPage() {
         }
     }
 
+    const handleResignClick = () => {
+        if (gameState && gameState.status === "IN_PROGRESS") {
+            void resignGame(gameState.currentPlayer)
+        }
+    }
+
+    const handleRematch = async () => {
+        const newGame = await rematch()
+
+        if (newGame) {
+            navigate(`/${newGame.id}`)
+        }
+    }
+
     const handleCloseError = () => {
         setMoveError(null)
         setWallError(null)
+        setResignError(null)
+        setRematchError(null)
     }
 
     if (isLoading) {
@@ -76,13 +105,32 @@ export function QuoridorPage() {
         )
     }
 
+    if (gameState.status === "FINISHED") {
+        return (
+            <ThemeProvider theme={quoridorTheme}>
+                <CssBaseline />
+                <Container
+                    maxWidth="sm"
+                    sx={{
+                        minHeight: "100vh",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    }}
+                >
+                    <GameFinished gameState={gameState} onRematch={handleRematch} />
+                </Container>
+            </ThemeProvider>
+        )
+    }
+
     return (
         <ThemeProvider theme={quoridorTheme}>
             <CssBaseline />
             <Container maxWidth="lg">
                 <Box py={4}>
                     <Snackbar
-                        open={!!moveError || !!wallError}
+                        open={!!moveError || !!wallError || !!resignError || !!rematchError}
                         autoHideDuration={6000}
                         onClose={handleCloseError}
                         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
@@ -92,7 +140,7 @@ export function QuoridorPage() {
                             onClose={handleCloseError}
                             sx={{ width: '100%' }}
                         >
-                            {moveError || wallError}
+                            {moveError || wallError || resignError || rematchError}
                         </Alert>
                     </Snackbar>
 
@@ -120,6 +168,10 @@ export function QuoridorPage() {
                             onWallClick={handleWallClick}
                         />
                     </Box>
+
+                    <Button onClick={handleResignClick}>
+                        Resign
+                    </Button>
                 </Box>
             </Container>
         </ThemeProvider>
