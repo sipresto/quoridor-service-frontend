@@ -6,17 +6,15 @@ import type {GameState} from "../model/game.ts";
 interface gameFinishedProps {
     gameState: GameState
     onRematch: () => void
+    onLeave: () => void
 }
 
-export function GameFinished({gameState, onRematch} : gameFinishedProps) {
+export function GameFinished({gameState, onRematch, onLeave} : gameFinishedProps) {
     const VITE_PLATFORM_URL: string = import.meta.env.VITE_PLATFORM_URL;
 
     const handleRematchClick = () => {
         onRematch();
     };
-
-    const canRematch = gameState.player1WantsRematch && gameState.player2WantsRematch;
-
 
     return (
         <Box
@@ -42,7 +40,7 @@ export function GameFinished({gameState, onRematch} : gameFinishedProps) {
                 <Button
                     variant="contained"
                     size="large"
-                    disabled={canRematch}
+                    disabled={gameState.leftGame}
                     onClick={handleRematchClick}
                 >
                     {gameState.player2.isHuman
@@ -56,7 +54,10 @@ export function GameFinished({gameState, onRematch} : gameFinishedProps) {
                 <Button
                     variant="outlined"
                     size="large"
-                    onClick={() => window.location.href = VITE_PLATFORM_URL}
+                    onClick={() => {
+                        onLeave();
+                        window.location.href = VITE_PLATFORM_URL;
+                    }}
                 >
                     Return to Game Platform
                 </Button>

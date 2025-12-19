@@ -23,6 +23,7 @@ import {useResign} from "../hooks/useResign.ts";
 import {GameFinished} from "../components/GameFinished.tsx";
 import {useRematch} from "../hooks/useRematch.ts";
 import {ResignDialog} from "../components/ResignDialog.tsx";
+import {useLeave} from "../hooks/useLeave.ts";
 
 export function QuoridorPage() {
     const { id } = useParams<{ id: string }>()
@@ -45,6 +46,8 @@ export function QuoridorPage() {
     const { placeWall, error: wallError, setError: setWallError } = usePlaceWall(gameId)
     const { resignGame, error: resignError, setError: setResignError } = useResign(gameId)
     const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId)
+    const { leave } = useLeave(gameId)
+
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
             void move(position)
@@ -81,6 +84,10 @@ export function QuoridorPage() {
         if (newGame) {
             navigate(`/${newGame.id}`)
         }
+    }
+
+    const handleLeave = async () => {
+        await leave()
     }
 
     const handleCloseError = () => {
@@ -127,7 +134,7 @@ export function QuoridorPage() {
                         justifyContent: "center"
                     }}
                 >
-                    <GameFinished gameState={gameState} onRematch={handleRematch} />
+                    <GameFinished gameState={gameState} onLeave={handleLeave} onRematch={handleRematch} />
                 </Container>
             </ThemeProvider>
         )
@@ -172,7 +179,7 @@ export function QuoridorPage() {
                             isActive={gameState.currentPlayer === 2}
                         />
                         <Tooltip sx={{mt:3, scale:2}} title="Resign?" arrow>
-                            <FlagIcon color="error" onClick={() => setConfirmResignOpen(true)} />
+                            <FlagIcon color="error" cursor="pointer" onClick={() => setConfirmResignOpen(true)} />
                         </Tooltip>
                     </Box>
 

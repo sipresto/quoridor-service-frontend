@@ -107,6 +107,20 @@ export async function resignGame(gameId: string): Promise<GameState> {
     }
 }
 
+export async function leave(gameId: string) {
+    try {
+        const { data } = await axios.patch<GameState>(
+            `${BACKEND_URL}/${gameId}/leave`,
+            {},
+            { headers: getAuthHeaders() }
+        );
+        return data;
+    } catch (error) {
+        handleAxiosError(error);
+    }
+}
+
+
 export function pollGameState(
     gameId: string,
     onUpdate: (gameState: GameState) => void,

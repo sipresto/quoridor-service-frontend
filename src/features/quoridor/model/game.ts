@@ -39,4 +39,5 @@ export interface GameState {
     winner: number | null
     validMoves: ValidActions
     newId: string
+    leftGame: boolean
 }
