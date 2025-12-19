@@ -8,14 +8,13 @@ export function usePlaceWall(gameId: string) {
     const [error, setError] = useState<string | null>(null)
 
     const placeWall = useCallback(async (
-        playerId: number,
         position: Position,
         orientation: "HORIZONTAL" | "VERTICAL"
     ) => {
         setIsPending(true)
         setError(null)
         try {
-            return await gameService.placeWall(gameId, playerId, position, orientation)
+            return await gameService.placeWall(gameId, position, orientation)
         } catch (err) {
             if (err instanceof GameError) {
                 setError(err.message)

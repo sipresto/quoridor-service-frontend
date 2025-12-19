@@ -37,18 +37,3 @@ export interface GameState {
     winner: number | null
     validMoves: ValidActions
 }
-
-export interface MoveAction {
-    type: "move"
-    playerId: number
-    position: Position
-}
-
-export interface WallAction {
-    type: "wall"
-    playerId: number
-    position: Position
-    orientation: "HORIZONTAL" | "VERTICAL"
-}
-
-export type GameAction = MoveAction | WallAction

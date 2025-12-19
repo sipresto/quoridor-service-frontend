@@ -47,7 +47,7 @@ export function QuoridorPage() {
     const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId)
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-            void move(gameState.currentPlayer, position)
+            void move(position)
         }
     }
 
@@ -59,7 +59,7 @@ export function QuoridorPage() {
             } else {
                 backendPosition.x += 1
             }
-            void placeWall(gameState.currentPlayer, backendPosition, orientation)
+            void placeWall(backendPosition, orientation)
         }
     }
 
