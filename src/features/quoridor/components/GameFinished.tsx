@@ -1,7 +1,6 @@
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents"
 import {Box, Button, Stack, Typography} from "@mui/material";
 import type {GameState} from "../model/game.ts";
-import {useState} from "react";
 
 
 interface gameFinishedProps {
@@ -11,7 +10,12 @@ interface gameFinishedProps {
 
 export function GameFinished({gameState, onRematch} : gameFinishedProps) {
     const VITE_PLATFORM_URL: string = import.meta.env.VITE_PLATFORM_URL;
-    const [isRematch, setRematch] = useState(false);
+
+    const handleRematchClick = () => {
+        onRematch();
+    };
+
+    const canRematch = gameState.player1WantsRematch && gameState.player2WantsRematch;
 
 
     return (
@@ -38,25 +42,26 @@ export function GameFinished({gameState, onRematch} : gameFinishedProps) {
                 <Button
                     variant="contained"
                     size="large"
-                    disabled={isRematch}
-                    onClick={() => {
-                        onRematch()
-                        setRematch(true);
-                    }}
+                    disabled={canRematch}
+                    onClick={handleRematchClick}
                 >
-                    Rematch
+                    {gameState.player2.isHuman
+                        ? gameState.player1WantsRematch && gameState.player2WantsRematch
+                            ? "Rematch Ready!"
+                            : `Rematch ${gameState.player1WantsRematch || gameState.player2WantsRematch ? "1/2" : "0/2"}`
+                        : "Rematch"
+                    }
                 </Button>
 
                 <Button
                     variant="outlined"
                     size="large"
-                    // TODO: link this to the lobby page
-                    onClick={ () => window.location.href = VITE_PLATFORM_URL}
+                    onClick={() => window.location.href = VITE_PLATFORM_URL}
                 >
                     Return to Game Platform
                 </Button>
             </Stack>
 
         </Box>
-        )
+    )
 }

@@ -6,13 +6,11 @@ export function useResign(gameId: string) {
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const resignGame = useCallback(async (
-        playerId: number,
-    ) => {
+    const resignGame = useCallback(async () => {
         setIsPending(true)
         setError(null)
         try {
-            return await gameService.resignGame(gameId, playerId)
+            return await gameService.resignGame(gameId)
         } catch (err) {
             if (err instanceof GameError) {
                 setError(err.message)

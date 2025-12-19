@@ -65,7 +65,13 @@ export function QuoridorPage() {
 
     const handleResignClick = () => {
         if (gameState && gameState.status === "IN_PROGRESS") {
-            void resignGame(gameState.currentPlayer)
+            void resignGame()
+        }
+    }
+
+    if (gameState && gameState.status === "FINISHED") {
+        if (gameState.newId !== null) {
+            navigate(`/${gameState.newId}`)
         }
     }
 

@@ -6,11 +6,11 @@ export function useRematch(gameId: string) {
     const [isPending, setIsPending] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const rematch = useCallback(async () => {
+    const startRematch = useCallback(async () => {
         setIsPending(true)
         setError(null)
         try {
-            return await gameService.createRematch(gameId)
+            return await gameService.startRematch(gameId)
         } catch (err) {
             if (err instanceof GameError) {
                 setError(err.message)
@@ -24,5 +24,5 @@ export function useRematch(gameId: string) {
         }
     }, [gameId])
 
-    return {rematch, isPending, error, setError}
+    return {rematch: startRematch, isPending, error, setError}
 }

@@ -3,7 +3,6 @@ import type { GameState, Position } from "../model/game"
 import { getAuthHeaders } from "./authToken"
 import { handleAxiosError } from "./errorHandling";
 
-const API_BASE_PATH = "/api/games/quoridor"
 const BACKEND_URL: string = import.meta.env.VITE_BACKEND_URL;
 
 interface GameCreatedResponse {
@@ -13,7 +12,7 @@ interface GameCreatedResponse {
 export async function createGame(difficulty: string, players: { id: string; name: string }[]): Promise<GameCreatedResponse> {
     try {
         const { data } = await axios.post<GameCreatedResponse>(
-            API_BASE_PATH,
+            BACKEND_URL,
             { difficulty, players },
             {
                 headers: {
@@ -31,7 +30,7 @@ export async function createGame(difficulty: string, players: { id: string; name
 export async function getGameState(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.get<GameState>(
-            `${API_BASE_PATH}/${gameId}`,
+            `${BACKEND_URL}/${gameId}`,
             {
                 headers: {
                     ...getAuthHeaders(),
@@ -48,7 +47,7 @@ export async function getGameState(gameId: string): Promise<GameState> {
 export async function movePlayer(gameId: string, position: Position): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/move`,
+            `${BACKEND_URL}/${gameId}/move`,
             {
                 to: { x: position.x, y: position.y }
             },
@@ -67,7 +66,7 @@ export async function placeWall(
 ): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/wall`,
+            `${BACKEND_URL}/${gameId}/wall`,
             {
                 wall: {
                     position: { x: position.x, y: position.y },
@@ -82,10 +81,10 @@ export async function placeWall(
     }
 }
 
-export async function createRematch(gameId: string): Promise<GameState> {
+export async function startRematch(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/rematch`,
+            `${BACKEND_URL}/${gameId}/rematch`,
             {},
             { headers: getAuthHeaders() }
         );
@@ -98,7 +97,8 @@ export async function createRematch(gameId: string): Promise<GameState> {
 export async function resignGame(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/resign`,
+            `${BACKEND_URL}/${gameId}/resign`,
+            {},
             { headers: getAuthHeaders() }
         );
         return data;

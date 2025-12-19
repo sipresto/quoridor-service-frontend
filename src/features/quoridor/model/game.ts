@@ -33,7 +33,10 @@ export interface GameState {
     board: Board
     player1WallsRemaining: number
     player2WallsRemaining: number
+    player1WantsRematch: boolean
+    player2WantsRematch: boolean
     status: "IN_PROGRESS" | "FINISHED"
     winner: number | null
     validMoves: ValidActions
+    newId: string
 }
