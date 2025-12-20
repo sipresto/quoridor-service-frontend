@@ -9,7 +9,7 @@ import {
     Tooltip
 } from "@mui/material"
 import FlagIcon from '@mui/icons-material/Flag';
-import {useMemo, useState} from "react"
+import {useEffect, useMemo, useState} from "react"
 import {useNavigate, useParams} from "react-router-dom"
 import { GameBoard } from "../components/GameBoard"
 import { PlayerInfo } from "../components/PlayerInfo"
@@ -24,6 +24,7 @@ import {GameFinished} from "../components/GameFinished.tsx";
 import {useRematch} from "../hooks/useRematch.ts";
 import {ResignDialog} from "../components/ResignDialog.tsx";
 import {useLeave} from "../hooks/useLeave.ts";
+import {useMakeAiMove} from "../hooks/useMakeAiMove.ts";
 
 export function QuoridorPage() {
     const { id } = useParams<{ id: string }>()
@@ -44,9 +45,28 @@ export function QuoridorPage() {
     const navigate = useNavigate()
     const { move, error: moveError, setError: setMoveError } = useMovePlayer(gameId)
     const { placeWall, error: wallError, setError: setWallError } = usePlaceWall(gameId)
+    const { triggerAiMove, isPending: aiMovePending } = useMakeAiMove(gameId || "");
     const { resignGame, error: resignError, setError: setResignError } = useResign(gameId)
     const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId)
     const { leave } = useLeave(gameId)
+
+    useEffect(() => {
+        if (!gameState || gameState.status !== "IN_PROGRESS" || aiMovePending) {
+            return
+        }
+
+        const currentPlayer = gameState.currentPlayer === 1
+            ? gameState.player1
+            : gameState.player2
+
+        if (!currentPlayer.isHuman) {
+            const timer = setTimeout(() => {
+                triggerAiMove()
+            }, 500)
+
+            return () => clearTimeout(timer)
+        }
+    }, [gameState, aiMovePending, triggerAiMove])
 
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
@@ -184,6 +204,12 @@ export function QuoridorPage() {
                     </Box>
 
                     <Box display="flex" justifyContent="center" flexDirection="column" alignItems="center">
+                        {aiMovePending && (
+                            <Box mb={2}>
+                                <CircularProgress size={24} />
+                                <Box component="span" ml={2}>AI is thinking...</Box>
+                            </Box>
+                        )}
                         <GameBoard
                             gameState={gameState}
                             onCellClick={handleCellClick}
