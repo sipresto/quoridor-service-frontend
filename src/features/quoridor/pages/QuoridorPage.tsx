@@ -1,16 +1,7 @@
-import {
-    Box,
-    CircularProgress,
-    Container,
-    CssBaseline,
-    ThemeProvider,
-    Alert,
-    Snackbar,
-    Tooltip
-} from "@mui/material"
+import { Alert, Box, CircularProgress, Container, CssBaseline, Snackbar, ThemeProvider, Tooltip } from "@mui/material"
 import FlagIcon from '@mui/icons-material/Flag';
-import {useMemo, useState} from "react"
-import {useNavigate, useParams} from "react-router-dom"
+import { useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import { GameBoard } from "../components/GameBoard"
 import { PlayerInfo } from "../components/PlayerInfo"
 import { GameStatus } from "../components/GameStatus"
@@ -19,25 +10,28 @@ import { useMovePlayer } from "../hooks/useMovePlayer"
 import { usePlaceWall } from "../hooks/usePlaceWall"
 import { quoridorTheme } from "../theme"
 import type { Position } from "../model/game"
-import {useResign} from "../hooks/useResign.ts";
-import {GameFinished} from "../components/GameFinished.tsx";
-import {useRematch} from "../hooks/useRematch.ts";
-import {ResignDialog} from "../components/ResignDialog.tsx";
-import {useLeave} from "../hooks/useLeave.ts";
+import { useResign } from "../hooks/useResign.ts";
+import { GameFinished } from "../components/GameFinished.tsx";
+import { useRematch } from "../hooks/useRematch.ts";
+import { ResignDialog } from "../components/ResignDialog.tsx";
+import { useLeave } from "../hooks/useLeave.ts";
+import { useAutoAiMove } from "../hooks/useAutoAiMove.ts";
 
 export function QuoridorPage() {
-    const { id } = useParams<{ id: string }>()
+    const { id: gameId } = useParams()
 
-    const { gameId } = useMemo(() => {
-        const params = new URLSearchParams(window.location.search)
-        const idFromPath = id
-        const idFromQuery = params.get("gameId")
-        const finalGameId = idFromPath || idFromQuery || "test-game-id"
-
-        return {
-            gameId: finalGameId
-        }
-    }, [id])
+    if (!gameId) {
+        return (
+            <ThemeProvider theme={quoridorTheme}>
+                <CssBaseline />
+                <Container maxWidth="lg" sx={{ mt: 4 }}>
+                    <Alert severity="error">
+                        {"Could not load game: invalid ID"}
+                    </Alert>
+                </Container>
+            </ThemeProvider>
+        )
+    }
 
     const [confirmResignOpen, setConfirmResignOpen] = useState(false)
     const { gameState, isLoading, error } = useGameState(gameId)
@@ -47,6 +41,8 @@ export function QuoridorPage() {
     const { resignGame, error: resignError, setError: setResignError } = useResign(gameId)
     const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId)
     const { leave } = useLeave(gameId)
+
+    const aiMovePending = useAutoAiMove({ gameState });
 
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
@@ -140,6 +136,11 @@ export function QuoridorPage() {
         )
     }
 
+    const isPlayer1AI = !gameState.player1.isHuman;
+    const isPlayer2AI = !gameState.player2.isHuman;
+    const isPlayer1Thinking = aiMovePending && isPlayer1AI && gameState.currentPlayer === 1;
+    const isPlayer2Thinking = aiMovePending && isPlayer2AI && gameState.currentPlayer === 2;
+
     return (
         <ThemeProvider theme={quoridorTheme}>
             <CssBaseline />
@@ -160,27 +161,42 @@ export function QuoridorPage() {
                         </Alert>
                     </Snackbar>
 
-
                     <GameStatus gameState={gameState} />
+                    <Box display="flex" justifyContent="center" mb={3}>
+                        <Box position="relative" display="inline-flex" gap={4}>
+                            <PlayerInfo
+                                player={gameState.player1}
+                                position={gameState.board.player1Position}
+                                wallsRemaining={gameState.player1WallsRemaining}
+                                isActive={gameState.currentPlayer === 1}
+                                isThinking={isPlayer1Thinking}
+                            />
 
-
-                    <Box display="flex" gap={4} flexWrap="wrap" justifyContent="center" mb={3}>
-                        <PlayerInfo
-                            player={gameState.player1}
-                            position={gameState.board.player1Position}
-                            wallsRemaining={gameState.player1WallsRemaining}
-                            isActive={gameState.currentPlayer === 1}
-                        />
-
-                        <PlayerInfo
-                            player={gameState.player2}
-                            position={gameState.board.player2Position}
-                            wallsRemaining={gameState.player2WallsRemaining}
-                            isActive={gameState.currentPlayer === 2}
-                        />
-                        <Tooltip sx={{mt:3, scale:2}} title="Resign?" arrow>
-                            <FlagIcon color="error" cursor="pointer" onClick={() => setConfirmResignOpen(true)} />
-                        </Tooltip>
+                            <PlayerInfo
+                                player={gameState.player2}
+                                position={gameState.board.player2Position}
+                                wallsRemaining={gameState.player2WallsRemaining}
+                                isActive={gameState.currentPlayer === 2}
+                                isThinking={isPlayer2Thinking}
+                            />
+                            <Box
+                                position="absolute"
+                                sx={{
+                                    left: '100%',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    ml: 2
+                                }}
+                            >
+                                <Tooltip sx={{ scale: 2 }} title="Resign?" arrow>
+                                    <FlagIcon
+                                        color="error"
+                                        cursor="pointer"
+                                        onClick={() => setConfirmResignOpen(true)}
+                                    />
+                                </Tooltip>
+                            </Box>
+                        </Box>
                     </Box>
 
                     <Box display="flex" justifyContent="center" flexDirection="column" alignItems="center">

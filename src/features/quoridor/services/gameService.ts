@@ -81,6 +81,15 @@ export async function placeWall(
     }
 }
 
+export async function makeAiMove(gameId: string) {
+    const { data: gameState } = await axios.post<GameState>(
+        `${BACKEND_URL}/${gameId}/ai-move`,
+        {},
+        { headers: getAuthHeaders() }
+    );
+    return gameState;
+}
+
 export async function startRematch(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
