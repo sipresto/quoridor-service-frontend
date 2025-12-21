@@ -33,22 +33,11 @@ export interface GameState {
     board: Board
     player1WallsRemaining: number
     player2WallsRemaining: number
+    player1WantsRematch: boolean
+    player2WantsRematch: boolean
     status: "IN_PROGRESS" | "FINISHED"
     winner: number | null
     validMoves: ValidActions
+    newId: string
+    leftGame: boolean
 }
-
-export interface MoveAction {
-    type: "move"
-    playerId: number
-    position: Position
-}
-
-export interface WallAction {
-    type: "wall"
-    playerId: number
-    position: Position
-    orientation: "HORIZONTAL" | "VERTICAL"
-}
-
-export type GameAction = MoveAction | WallAction

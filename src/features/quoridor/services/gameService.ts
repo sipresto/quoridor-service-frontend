@@ -3,7 +3,7 @@ import type { GameState, Position } from "../model/game"
 import { getAuthHeaders } from "./authToken"
 import { handleAxiosError } from "./errorHandling";
 
-const API_BASE_PATH = "/api/games/quoridor"
+const BACKEND_URL: string = import.meta.env.VITE_BACKEND_URL;
 
 interface GameCreatedResponse {
     gameUrl: string;
@@ -12,7 +12,7 @@ interface GameCreatedResponse {
 export async function createGame(difficulty: string, players: { id: string; name: string }[]): Promise<GameCreatedResponse> {
     try {
         const { data } = await axios.post<GameCreatedResponse>(
-            API_BASE_PATH,
+            BACKEND_URL,
             { difficulty, players },
             {
                 headers: {
@@ -30,7 +30,7 @@ export async function createGame(difficulty: string, players: { id: string; name
 export async function getGameState(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.get<GameState>(
-            `${API_BASE_PATH}/${gameId}`,
+            `${BACKEND_URL}/${gameId}`,
             {
                 headers: {
                     ...getAuthHeaders(),
@@ -44,12 +44,11 @@ export async function getGameState(gameId: string): Promise<GameState> {
     }
 }
 
-export async function movePlayer(gameId: string, playerId: number, position: Position): Promise<GameState> {
+export async function movePlayer(gameId: string, position: Position): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/move`,
+            `${BACKEND_URL}/${gameId}/move`,
             {
-                player: playerId,
                 to: { x: position.x, y: position.y }
             },
             { headers: getAuthHeaders() }
@@ -62,15 +61,13 @@ export async function movePlayer(gameId: string, playerId: number, position: Pos
 
 export async function placeWall(
     gameId: string,
-    playerId: number,
     position: Position,
     orientation: "HORIZONTAL" | "VERTICAL"
 ): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/wall`,
+            `${BACKEND_URL}/${gameId}/wall`,
             {
-                player: playerId,
                 wall: {
                     position: { x: position.x, y: position.y },
                     orientation
@@ -84,10 +81,10 @@ export async function placeWall(
     }
 }
 
-export async function createRematch(gameId: string): Promise<GameState> {
+export async function startRematch(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/rematch`,
+            `${BACKEND_URL}/${gameId}/rematch`,
             {},
             { headers: getAuthHeaders() }
         );
@@ -97,11 +94,11 @@ export async function createRematch(gameId: string): Promise<GameState> {
     }
 }
 
-export async function resignGame(gameId: string, playerId: number): Promise<GameState> {
+export async function resignGame(gameId: string): Promise<GameState> {
     try {
         const { data } = await axios.post<GameState>(
-            `${API_BASE_PATH}/${gameId}/resign`,
-            { player: playerId },
+            `${BACKEND_URL}/${gameId}/resign`,
+            {},
             { headers: getAuthHeaders() }
         );
         return data;
@@ -109,6 +106,20 @@ export async function resignGame(gameId: string, playerId: number): Promise<Game
         handleAxiosError(error);
     }
 }
+
+export async function leave(gameId: string) {
+    try {
+        const { data } = await axios.patch<GameState>(
+            `${BACKEND_URL}/${gameId}/leave`,
+            {},
+            { headers: getAuthHeaders() }
+        );
+        return data;
+    } catch (error) {
+        handleAxiosError(error);
+    }
+}
+
 
 export function pollGameState(
     gameId: string,
