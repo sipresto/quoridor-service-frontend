@@ -180,27 +180,40 @@ export function QuoridorPage() {
                         </Alert>
                     </Snackbar>
 
-
                     <GameStatus gameState={gameState} />
+                    <Box display="flex" justifyContent="center" mb={3}>
+                        <Box position="relative" display="inline-flex" gap={4}>
+                            <PlayerInfo
+                                player={gameState.player1}
+                                position={gameState.board.player1Position}
+                                wallsRemaining={gameState.player1WallsRemaining}
+                                isActive={gameState.currentPlayer === 1}
+                            />
 
-
-                    <Box display="flex" gap={4} flexWrap="wrap" justifyContent="center" mb={3}>
-                        <PlayerInfo
-                            player={gameState.player1}
-                            position={gameState.board.player1Position}
-                            wallsRemaining={gameState.player1WallsRemaining}
-                            isActive={gameState.currentPlayer === 1}
-                        />
-
-                        <PlayerInfo
-                            player={gameState.player2}
-                            position={gameState.board.player2Position}
-                            wallsRemaining={gameState.player2WallsRemaining}
-                            isActive={gameState.currentPlayer === 2}
-                        />
-                        <Tooltip sx={{mt:3, scale:2}} title="Resign?" arrow>
-                            <FlagIcon color="error" cursor="pointer" onClick={() => setConfirmResignOpen(true)} />
-                        </Tooltip>
+                            <PlayerInfo
+                                player={gameState.player2}
+                                position={gameState.board.player2Position}
+                                wallsRemaining={gameState.player2WallsRemaining}
+                                isActive={gameState.currentPlayer === 2}
+                            />
+                            <Box
+                                position="absolute"
+                                sx={{
+                                    left: '100%',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    ml: 2
+                                }}
+                            >
+                                <Tooltip sx={{ scale: 2 }} title="Resign?" arrow>
+                                    <FlagIcon
+                                        color="error"
+                                        cursor="pointer"
+                                        onClick={() => setConfirmResignOpen(true)}
+                                    />
+                                </Tooltip>
+                            </Box>
+                        </Box>
                     </Box>
 
                     <Box display="flex" justifyContent="center" flexDirection="column" alignItems="center">
