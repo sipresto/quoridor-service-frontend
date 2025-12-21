@@ -17,12 +17,7 @@ function App() {
                 <SecurityContextProvider>
                     <BrowserRouter basename="/games/quoridor">
                         <Routes>
-                            <Route path="/:id" element={
-                                <RouteGuard>
-                                    <QuoridorPage />
-                                </RouteGuard>
-                            }/>
-                            <Route path="/" element={
+                            <Route path="/:id?" element={
                                 <RouteGuard>
                                     <QuoridorPage />
                                 </RouteGuard>

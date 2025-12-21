@@ -1,16 +1,7 @@
-import {
-    Box,
-    CircularProgress,
-    Container,
-    CssBaseline,
-    ThemeProvider,
-    Alert,
-    Snackbar,
-    Tooltip
-} from "@mui/material"
+import { Alert, Box, CircularProgress, Container, CssBaseline, Snackbar, ThemeProvider, Tooltip } from "@mui/material"
 import FlagIcon from '@mui/icons-material/Flag';
-import {useEffect, useMemo, useState} from "react"
-import {useNavigate, useParams} from "react-router-dom"
+import { useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import { GameBoard } from "../components/GameBoard"
 import { PlayerInfo } from "../components/PlayerInfo"
 import { GameStatus } from "../components/GameStatus"
@@ -19,54 +10,39 @@ import { useMovePlayer } from "../hooks/useMovePlayer"
 import { usePlaceWall } from "../hooks/usePlaceWall"
 import { quoridorTheme } from "../theme"
 import type { Position } from "../model/game"
-import {useResign} from "../hooks/useResign.ts";
-import {GameFinished} from "../components/GameFinished.tsx";
-import {useRematch} from "../hooks/useRematch.ts";
-import {ResignDialog} from "../components/ResignDialog.tsx";
-import {useLeave} from "../hooks/useLeave.ts";
-import {useMakeAiMove} from "../hooks/useMakeAiMove.ts";
+import { useResign } from "../hooks/useResign.ts";
+import { GameFinished } from "../components/GameFinished.tsx";
+import { useRematch } from "../hooks/useRematch.ts";
+import { ResignDialog } from "../components/ResignDialog.tsx";
+import { useLeave } from "../hooks/useLeave.ts";
+import { useAutoAiMove } from "../hooks/useAutoAiMove.ts";
 
 export function QuoridorPage() {
-    const { id } = useParams<{ id: string }>()
+    const { id: gameId } = useParams()
 
-    const { gameId } = useMemo(() => {
-        const params = new URLSearchParams(window.location.search)
-        const idFromPath = id
-        const idFromQuery = params.get("gameId")
-        const finalGameId = idFromPath || idFromQuery || "test-game-id"
-
-        return {
-            gameId: finalGameId
-        }
-    }, [id])
+    if (!gameId) {
+        return (
+            <ThemeProvider theme={quoridorTheme}>
+                <CssBaseline />
+                <Container maxWidth="lg" sx={{ mt: 4 }}>
+                    <Alert severity="error">
+                        {"Could not load game: invalid ID"}
+                    </Alert>
+                </Container>
+            </ThemeProvider>
+        )
+    }
 
     const [confirmResignOpen, setConfirmResignOpen] = useState(false)
     const { gameState, isLoading, error } = useGameState(gameId)
     const navigate = useNavigate()
     const { move, error: moveError, setError: setMoveError } = useMovePlayer(gameId)
     const { placeWall, error: wallError, setError: setWallError } = usePlaceWall(gameId)
-    const { triggerAiMove, isPending: aiMovePending } = useMakeAiMove(gameId || "");
     const { resignGame, error: resignError, setError: setResignError } = useResign(gameId)
     const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId)
     const { leave } = useLeave(gameId)
 
-    useEffect(() => {
-        if (!gameState || gameState.status !== "IN_PROGRESS" || aiMovePending) {
-            return
-        }
-
-        const currentPlayer = gameState.currentPlayer === 1
-            ? gameState.player1
-            : gameState.player2
-
-        if (!currentPlayer.isHuman) {
-            const timer = setTimeout(() => {
-                triggerAiMove()
-            }, 500)
-
-            return () => clearTimeout(timer)
-        }
-    }, [gameState, aiMovePending, triggerAiMove])
+    const aiMovePending = useAutoAiMove({ gameState });
 
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
@@ -160,6 +136,11 @@ export function QuoridorPage() {
         )
     }
 
+    const isPlayer1AI = !gameState.player1.isHuman;
+    const isPlayer2AI = !gameState.player2.isHuman;
+    const isPlayer1Thinking = aiMovePending && isPlayer1AI && gameState.currentPlayer === 1;
+    const isPlayer2Thinking = aiMovePending && isPlayer2AI && gameState.currentPlayer === 2;
+
     return (
         <ThemeProvider theme={quoridorTheme}>
             <CssBaseline />
@@ -188,6 +169,7 @@ export function QuoridorPage() {
                                 position={gameState.board.player1Position}
                                 wallsRemaining={gameState.player1WallsRemaining}
                                 isActive={gameState.currentPlayer === 1}
+                                isThinking={isPlayer1Thinking}
                             />
 
                             <PlayerInfo
@@ -195,6 +177,7 @@ export function QuoridorPage() {
                                 position={gameState.board.player2Position}
                                 wallsRemaining={gameState.player2WallsRemaining}
                                 isActive={gameState.currentPlayer === 2}
+                                isThinking={isPlayer2Thinking}
                             />
                             <Box
                                 position="absolute"
@@ -217,12 +200,6 @@ export function QuoridorPage() {
                     </Box>
 
                     <Box display="flex" justifyContent="center" flexDirection="column" alignItems="center">
-                        {aiMovePending && (
-                            <Box mb={2}>
-                                <CircularProgress size={24} />
-                                <Box component="span" ml={2}>AI is thinking...</Box>
-                            </Box>
-                        )}
                         <GameBoard
                             gameState={gameState}
                             onCellClick={handleCellClick}
