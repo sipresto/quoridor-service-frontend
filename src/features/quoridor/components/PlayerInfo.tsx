@@ -24,10 +24,13 @@ export function PlayerInfo({ player, wallsRemaining, isActive }: PlayerInfoProps
                 p: 2,
                 border: isActive ? 2 : 0,
                 borderColor: color,
-                transition: "all 0.3s ease",
+                transition: "all 0.3s ease", width: 280,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between"
             }}
         >
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box display="flex" alignItems="center" gap={2} width="100%">
                 <Box
                     sx={{
                         width: 40,
@@ -36,11 +39,16 @@ export function PlayerInfo({ player, wallsRemaining, isActive }: PlayerInfoProps
                         bgcolor: color,
                         border: 2,
                         borderColor: "divider",
+                        flexShrink: 0
                     }}
                 />
-                <Box flex={1}>
-                    <Typography variant="h6">{player.name}</Typography>
+
+                <Box flex={1} minWidth={0}>
+                    <Typography variant="h6" noWrap title={player.name}>
+                        {player.name}
+                    </Typography>
                 </Box>
+
                 <Chip
                     label={`${wallsRemaining} walls`}
                     color={isActive ? "primary" : "default"}
