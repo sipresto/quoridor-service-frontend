@@ -10,7 +10,7 @@ interface gameFinishedProps {
 }
 
 export function GameFinished({gameState, onRematch, onLeave} : gameFinishedProps) {
-    const VITE_PLATFORM_URL: string = import.meta.env.VITE_PLATFORM_URL;
+    const LIBRARY_URL =  import.meta.env.VITE_PLATFORM_LIBRARY_URL;
 
     const handleRematchClick = () => {
         onRematch();
@@ -56,7 +56,7 @@ export function GameFinished({gameState, onRematch, onLeave} : gameFinishedProps
                     size="large"
                     onClick={() => {
                         onLeave();
-                        window.location.href = VITE_PLATFORM_URL;
+                        window.location.href = LIBRARY_URL;
                     }}
                 >
                     Return to Game Platform
