@@ -18,13 +18,13 @@ export default defineConfig({
             '/api/platform': {
                 target: 'http://localhost:8095',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api\/platform/, '/api'),
+                rewrite: (path) => path.replace(/^\/api\/platform/, '/api/platform'),
             },
 
             '/api/games/quoridor': {
                 target: 'http://localhost:8097',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api\/games\/quoridor/, '/api/quoridor'),
+                rewrite: (path) => path.replace(/^\/api\/games\/quoridor/, '/api/games/quoridor'),
             },
 
             '/platform': {
