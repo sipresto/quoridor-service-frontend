@@ -14,7 +14,6 @@ export function useGameState(gameId: string) {
         getGameState(gameId)
             .then((state) => {
                 if (isMounted) {
-                    // Validate that we got a proper game state object
                     if (!state || typeof state !== 'object' || !state.board) {
                         throw new Error("Invalid game state received from server")
                     }

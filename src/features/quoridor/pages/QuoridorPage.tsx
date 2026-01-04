@@ -18,7 +18,20 @@ import { useLeave } from "../hooks/useLeave.ts";
 import { useAutoAiMove } from "../hooks/useAutoAiMove.ts";
 
 export function QuoridorPage() {
-    const { id: gameId } = useParams()
+    const { id } = useParams();
+    const gameId = id ?? "";
+
+    const navigate = useNavigate();
+    const [confirmResignOpen, setConfirmResignOpen] = useState(false);
+
+    const { gameState, isLoading, error } = useGameState(gameId);
+    const { move, error: moveError, setError: setMoveError } = useMovePlayer(gameId);
+    const { placeWall, error: wallError, setError: setWallError } = usePlaceWall(gameId);
+    const { resignGame, error: resignError, setError: setResignError } = useResign(gameId);
+    const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId);
+    const { leave } = useLeave(gameId);
+
+    const aiMovePending = useAutoAiMove({ gameState });
 
     if (!gameId) {
         return (
@@ -33,16 +46,6 @@ export function QuoridorPage() {
         )
     }
 
-    const [confirmResignOpen, setConfirmResignOpen] = useState(false)
-    const { gameState, isLoading, error } = useGameState(gameId)
-    const navigate = useNavigate()
-    const { move, error: moveError, setError: setMoveError } = useMovePlayer(gameId)
-    const { placeWall, error: wallError, setError: setWallError } = usePlaceWall(gameId)
-    const { resignGame, error: resignError, setError: setResignError } = useResign(gameId)
-    const { rematch, error: rematchError, setError: setRematchError } = useRematch(gameId)
-    const { leave } = useLeave(gameId)
-
-    const aiMovePending = useAutoAiMove({ gameState });
 
     const handleCellClick = (position: Position) => {
         if (gameState && gameState.status === "IN_PROGRESS") {
@@ -166,6 +169,7 @@ export function QuoridorPage() {
                         <Box position="relative" display="inline-flex" gap={4}>
                             <PlayerInfo
                                 player={gameState.player1}
+                                playerColor="#3b82f6"
                                 position={gameState.board.player1Position}
                                 wallsRemaining={gameState.player1WallsRemaining}
                                 isActive={gameState.currentPlayer === 1}
@@ -174,6 +178,7 @@ export function QuoridorPage() {
 
                             <PlayerInfo
                                 player={gameState.player2}
+                                playerColor="#ef4444"
                                 position={gameState.board.player2Position}
                                 wallsRemaining={gameState.player2WallsRemaining}
                                 isActive={gameState.currentPlayer === 2}
