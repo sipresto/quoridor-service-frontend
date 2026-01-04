@@ -7,16 +7,17 @@ interface PlayerInfoProps {
     wallsRemaining: number
     isActive: boolean
     isThinking?: boolean
+    playerColor: string
 }
 
-const playerColors: Record<number, string> = {
-    1: "#3b82f6",
-    2: "#ef4444"
-}
-
-export function PlayerInfo({ player, wallsRemaining, isActive, isThinking }: PlayerInfoProps) {
-    const playerNumber = player.isHuman ? 1 : 2
-    const color = playerColors[playerNumber] || "#6b7280"
+export function PlayerInfo({
+                               player,
+                               wallsRemaining,
+                               isActive,
+                               isThinking,
+                               playerColor
+                           }: PlayerInfoProps) {
+    const color = playerColor
 
     return (
         <Paper
@@ -34,15 +35,11 @@ export function PlayerInfo({ player, wallsRemaining, isActive, isThinking }: Pla
                 justifyContent: "space-between"
             }}
         >
-
             <Fade in={isThinking}>
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
+                        top: 0, left: 0, right: 0, bottom: 0,
                         zIndex: 2,
                         display: 'flex',
                         alignItems: 'center',
@@ -50,13 +47,10 @@ export function PlayerInfo({ player, wallsRemaining, isActive, isThinking }: Pla
                         gap: 1.5,
                         bgcolor: 'rgba(255, 255, 255, 0.7)',
                         backdropFilter: 'blur(2px)',
-                        transition: "all 0.3s ease",
                     }}
                 >
                     <CircularProgress size={24} thickness={5} sx={{ color: color }} />
-                    <Typography variant="body1" sx={{ color: 'text.primary' }}>
-                        Thinking...
-                    </Typography>
+                    <Typography variant="body1">Thinking...</Typography>
                 </Box>
             </Fade>
 
@@ -81,9 +75,12 @@ export function PlayerInfo({ player, wallsRemaining, isActive, isThinking }: Pla
 
                 <Chip
                     label={`${wallsRemaining} walls`}
-                    color={isActive ? "primary" : "default"}
-                    variant={isActive ? "filled" : "outlined"}
-                    sx={{ transition: "all 0.3s ease" }}
+                    sx={{
+                        transition: "all 0.3s ease",
+                        bgcolor: isActive ? color : 'transparent',
+                        color: isActive ? 'white' : 'text.primary',
+                        border: isActive ? 'none' : `1px solid ${color}`
+                    }}
                 />
             </Box>
         </Paper>
