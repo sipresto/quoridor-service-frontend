@@ -47,8 +47,6 @@ export function RouteGuard({ children }: PropsWithChildren) {
     }
 
     if (!hasToken || !isAuthenticated()) {
-        const platformUrl = import.meta.env.VITE_PLATFORM_URL || 'http://localhost:5173'
-
         return (
             <Box
                 display="flex"
@@ -81,7 +79,7 @@ export function RouteGuard({ children }: PropsWithChildren) {
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => window.location.href = platformUrl}
+                        onClick={() => window.location.href = "/"}
                         sx={{ mt: 2 }}
                     >
                         Go to Platform
